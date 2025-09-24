@@ -8,7 +8,7 @@ import {
   insertActivitySchema,
   insertAppreciationSchema
 } from "@shared/schema";
-import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders } from "./services/openai";
+import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders, analyzeRelationshipDynamics, generateCoupleRecommendations, generateRelationshipSummary } from "./services/openai";
 import { GamificationService } from "./services/gamification";
 import { seedAchievements } from "./services/seed-achievements";
 
@@ -838,6 +838,512 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to get analytics" });
+    }
+  });
+
+  // Couple Insights Routes
+  app.get("/api/couple/overview", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get partner info
+      const couple = await storage.getCouple(userId);
+      if (!couple) {
+        return res.status(404).json({ message: "No partner found" });
+      }
+
+      const partnerId = couple.user1Id === userId ? couple.user2Id : couple.user1Id;
+      const partner = await storage.getUser(partnerId);
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+
+      // Get activities for both partners (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const userActivities = await storage.getActivitiesByUserBetween(userId, thirtyDaysAgo, new Date());
+      const partnerActivities = await storage.getActivitiesByUserBetween(partnerId, thirtyDaysAgo, new Date());
+
+      // Get appreciations between partners
+      const userAppreciations = await storage.getAppreciationsByUser(userId);
+      const partnerAppreciations = await storage.getAppreciationsByUser(partnerId);
+
+      // Calculate combined statistics
+      const totalActivities = userActivities.length + partnerActivities.length;
+      const userPoints = userActivities.reduce((sum, a) => sum + a.points, 0);
+      const partnerPoints = partnerActivities.reduce((sum, a) => sum + a.points, 0);
+      const totalPoints = userPoints + partnerPoints;
+
+      // Calculate category distribution for couple
+      const categoryStats: Record<string, { 
+        userCount: number; 
+        partnerCount: number; 
+        userPoints: number; 
+        partnerPoints: number; 
+        categoryName: string; 
+      }> = {};
+
+      for (const activity of userActivities) {
+        const category = await storage.getActivityCategory(activity.categoryId);
+        const categoryName = category?.name || 'Other';
+        if (!categoryStats[categoryName]) {
+          categoryStats[categoryName] = {
+            userCount: 0,
+            partnerCount: 0,
+            userPoints: 0,
+            partnerPoints: 0,
+            categoryName
+          };
+        }
+        categoryStats[categoryName].userCount++;
+        categoryStats[categoryName].userPoints += activity.points;
+      }
+
+      for (const activity of partnerActivities) {
+        const category = await storage.getActivityCategory(activity.categoryId);
+        const categoryName = category?.name || 'Other';
+        if (!categoryStats[categoryName]) {
+          categoryStats[categoryName] = {
+            userCount: 0,
+            partnerCount: 0,
+            userPoints: 0,
+            partnerPoints: 0,
+            categoryName
+          };
+        }
+        categoryStats[categoryName].partnerCount++;
+        categoryStats[categoryName].partnerPoints += activity.points;
+      }
+
+      const overview = {
+        partner: {
+          id: partner.id,
+          name: partner.name,
+          email: partner.email,
+          avatar: partner.avatar
+        },
+        timeframe: '30 days',
+        combined: {
+          totalActivities,
+          totalPoints,
+          averageActivitiesPerDay: Math.round(totalActivities / 30),
+          balance: {
+            user: {
+              activities: userActivities.length,
+              points: userPoints,
+              percentage: totalActivities > 0 ? Math.round((userActivities.length / totalActivities) * 100) : 50
+            },
+            partner: {
+              activities: partnerActivities.length,
+              points: partnerPoints,
+              percentage: totalActivities > 0 ? Math.round((partnerActivities.length / totalActivities) * 100) : 50
+            }
+          }
+        },
+        appreciations: {
+          userReceived: userAppreciations.length,
+          partnerReceived: partnerAppreciations.length,
+          appreciationRatio: userAppreciations.length + partnerAppreciations.length > 0 
+            ? (userAppreciations.length / (userAppreciations.length + partnerAppreciations.length))
+            : 0.5
+        },
+        categoryBreakdown: Object.values(categoryStats)
+      };
+
+      res.json(overview);
+    } catch (error) {
+      console.error("Failed to get couple overview:", error);
+      res.status(500).json({ message: "Failed to get couple overview" });
+    }
+  });
+
+  app.get("/api/couple/patterns", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get partner info
+      const couple = await storage.getCouple(userId);
+      if (!couple) {
+        return res.status(404).json({ message: "No partner found" });
+      }
+
+      const partnerId = couple.user1Id === userId ? couple.user2Id : couple.user1Id;
+      const partner = await storage.getUser(partnerId);
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+
+      // Get activities for pattern analysis (last 60 days for better patterns)
+      const sixtyDaysAgo = new Date();
+      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+      
+      const userActivities = await storage.getActivitiesByUserBetween(userId, sixtyDaysAgo, new Date());
+      const partnerActivities = await storage.getActivitiesByUserBetween(partnerId, sixtyDaysAgo, new Date());
+
+      // Analyze time patterns
+      const userTimePatterns = userActivities.reduce((acc: Record<number, number>, activity) => {
+        const hour = activity.completedAt.getHours();
+        acc[hour] = (acc[hour] || 0) + 1;
+        return acc;
+      }, {});
+
+      const partnerTimePatterns = partnerActivities.reduce((acc: Record<number, number>, activity) => {
+        const hour = activity.completedAt.getHours();
+        acc[hour] = (acc[hour] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Analyze day-of-week patterns
+      const userDayPatterns = userActivities.reduce((acc: Record<number, number>, activity) => {
+        const day = activity.completedAt.getDay();
+        acc[day] = (acc[day] || 0) + 1;
+        return acc;
+      }, {});
+
+      const partnerDayPatterns = partnerActivities.reduce((acc: Record<number, number>, activity) => {
+        const day = activity.completedAt.getDay();
+        acc[day] = (acc[day] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Find most active times
+      const getUserPeakHour = () => {
+        const maxHour = Object.entries(userTimePatterns)
+          .reduce((max, [hour, count]) => count > max.count ? { hour: parseInt(hour), count } : max, { hour: 12, count: 0 });
+        return maxHour.hour;
+      };
+
+      const getPartnerPeakHour = () => {
+        const maxHour = Object.entries(partnerTimePatterns)
+          .reduce((max, [hour, count]) => count > max.count ? { hour: parseInt(hour), count } : max, { hour: 12, count: 0 });
+        return maxHour.hour;
+      };
+
+      const patterns = {
+        partner: {
+          id: partner.id,
+          name: partner.name,
+          email: partner.email,
+          avatar: partner.avatar
+        },
+        timeframe: '60 days',
+        timePatterns: {
+          user: {
+            peakHour: getUserPeakHour(),
+            hourlyDistribution: userTimePatterns,
+            mostActiveTimeLabel: getUserPeakHour() < 12 ? 'Morning Person' : getUserPeakHour() < 18 ? 'Afternoon Active' : 'Evening Active'
+          },
+          partner: {
+            peakHour: getPartnerPeakHour(),
+            hourlyDistribution: partnerTimePatterns,
+            mostActiveTimeLabel: getPartnerPeakHour() < 12 ? 'Morning Person' : getPartnerPeakHour() < 18 ? 'Afternoon Active' : 'Evening Active'
+          },
+          overlap: Math.abs(getUserPeakHour() - getPartnerPeakHour()) <= 2 ? 'high' : 'medium'
+        },
+        dayPatterns: {
+          user: userDayPatterns,
+          partner: partnerDayPatterns
+        },
+        collaboration: {
+          complementary: Object.keys(userTimePatterns).length > 0 && Object.keys(partnerTimePatterns).length > 0,
+          coverageScore: Math.min(Object.keys(userTimePatterns).length + Object.keys(partnerTimePatterns).length, 24) / 24
+        }
+      };
+
+      res.json(patterns);
+    } catch (error) {
+      console.error("Failed to analyze couple patterns:", error);
+      res.status(500).json({ message: "Failed to analyze couple patterns" });
+    }
+  });
+
+  app.get("/api/couple/insights", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get partner info
+      const couple = await storage.getCouple(userId);
+      if (!couple) {
+        return res.status(404).json({ message: "No partner found" });
+      }
+
+      const partnerId = couple.user1Id === userId ? couple.user2Id : couple.user1Id;
+      const partner = await storage.getUser(partnerId);
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+
+      // Get recent activities (last 30 days for insights)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const userActivities = await storage.getActivitiesByUserBetween(userId, thirtyDaysAgo, new Date());
+      const partnerActivities = await storage.getActivitiesByUserBetween(partnerId, thirtyDaysAgo, new Date());
+
+      // Get appreciations
+      const userAppreciations = await storage.getAppreciationsByUser(userId);
+      const partnerAppreciations = await storage.getAppreciationsByUser(partnerId);
+
+      // Calculate insights
+      const totalActivities = userActivities.length + partnerActivities.length;
+      const userPercentage = totalActivities > 0 ? (userActivities.length / totalActivities) * 100 : 50;
+      const partnerPercentage = 100 - userPercentage;
+
+      // Analyze category strengths
+      const userCategories: Record<string, number> = {};
+      const partnerCategories: Record<string, number> = {};
+
+      for (const activity of userActivities) {
+        const category = await storage.getActivityCategory(activity.categoryId);
+        const categoryName = category?.name || 'Other';
+        userCategories[categoryName] = (userCategories[categoryName] || 0) + 1;
+      }
+
+      for (const activity of partnerActivities) {
+        const category = await storage.getActivityCategory(activity.categoryId);
+        const categoryName = category?.name || 'Other';
+        partnerCategories[categoryName] = (partnerCategories[categoryName] || 0) + 1;
+      }
+
+      // Find strengths and opportunities
+      const userTopCategory = Object.entries(userCategories)
+        .sort(([,a], [,b]) => b - a)[0];
+      const partnerTopCategory = Object.entries(partnerCategories)
+        .sort(([,a], [,b]) => b - a)[0];
+
+      // Generate insights based on patterns
+      const insights = {
+        partner: {
+          id: partner.id,
+          name: partner.name,
+          email: partner.email,
+          avatar: partner.avatar
+        },
+        timeframe: '30 days',
+        balance: {
+          status: Math.abs(userPercentage - 50) < 10 ? 'balanced' : userPercentage > 60 ? 'user_heavy' : 'partner_heavy',
+          userPercentage: Math.round(userPercentage),
+          partnerPercentage: Math.round(partnerPercentage),
+          recommendation: Math.abs(userPercentage - 50) < 10 
+            ? "Great teamwork! You're both contributing equally."
+            : userPercentage > 60 
+            ? `You're doing ${Math.round(userPercentage)}% of activities. Consider sharing some tasks with ${partner.name}.`
+            : `${partner.name} is handling ${Math.round(partnerPercentage)}% of activities. Great support from your partner!`
+        },
+        strengths: {
+          user: {
+            category: userTopCategory?.[0] || 'General Support',
+            count: userTopCategory?.[1] || 0,
+            description: `You excel in ${userTopCategory?.[0] || 'supporting your relationship'}`
+          },
+          partner: {
+            category: partnerTopCategory?.[0] || 'General Support',  
+            count: partnerTopCategory?.[1] || 0,
+            description: `${partner.name} excels in ${partnerTopCategory?.[0] || 'supporting your relationship'}`
+          },
+          complementary: userTopCategory?.[0] !== partnerTopCategory?.[0],
+          message: userTopCategory?.[0] !== partnerTopCategory?.[0] 
+            ? "You complement each other well with different strengths!" 
+            : "You both focus on similar areas - great alignment!"
+        },
+        appreciation: {
+          userReceived: userAppreciations.length,
+          partnerReceived: partnerAppreciations.length,
+          status: userAppreciations.length === partnerAppreciations.length ? 'balanced' 
+                 : userAppreciations.length > partnerAppreciations.length ? 'user_appreciated' 
+                 : 'partner_appreciated',
+          recommendation: userAppreciations.length < partnerAppreciations.length 
+            ? `Send more appreciations to ${partner.name} to show gratitude for their efforts!`
+            : userAppreciations.length > partnerAppreciations.length
+            ? `You receive lots of appreciation! Consider acknowledging ${partner.name}'s contributions too.`
+            : "You both appreciate each other equally - wonderful!"
+        },
+        opportunities: [
+          ...(Math.abs(userPercentage - 50) > 15 ? [{
+            type: 'balance',
+            title: 'Balance Activities',
+            description: userPercentage > 65 
+              ? `Consider delegating some ${userTopCategory?.[0] || 'tasks'} to ${partner.name}`
+              : `You could help more with ${partnerTopCategory?.[0] || 'household activities'}`
+          }] : []),
+          ...(userAppreciations.length + partnerAppreciations.length < totalActivities * 0.3 ? [{
+            type: 'appreciation',
+            title: 'Increase Appreciation',
+            description: 'Try sending more appreciations to acknowledge each other\'s efforts'
+          }] : []),
+          ...(totalActivities < 20 ? [{
+            type: 'activity',
+            title: 'Log More Activities',
+            description: 'Track more of your daily contributions to get better insights'
+          }] : [])
+        ]
+      };
+
+      res.json(insights);
+    } catch (error) {
+      console.error("Failed to generate couple insights:", error);
+      res.status(500).json({ message: "Failed to generate couple insights" });
+    }
+  });
+
+  app.get("/api/couple/ai-analysis", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get partner info
+      const couple = await storage.getCouple(userId);
+      if (!couple) {
+        return res.status(404).json({ message: "No partner found" });
+      }
+
+      const partnerId = couple.user1Id === userId ? couple.user2Id : couple.user1Id;
+      const partner = await storage.getUser(partnerId);
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      const user = await storage.getUserById(userId);
+
+      // Get activities for both partners (last 30 days for analysis)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const userActivities = await storage.getActivitiesByUserBetween(userId, thirtyDaysAgo, new Date());
+      const partnerActivities = await storage.getActivitiesByUserBetween(partnerId, thirtyDaysAgo, new Date());
+
+      // Map activities to include category information
+      const userActivitiesWithCategories = await Promise.all(
+        userActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+
+      const partnerActivitiesWithCategories = await Promise.all(
+        partnerActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+
+      // Get appreciations data
+      const userAppreciations = await storage.getAppreciationsByUser(userId);
+      const partnerAppreciations = await storage.getAppreciationsByUser(partnerId);
+
+      const appreciationsData = {
+        userReceived: userAppreciations.length,
+        partnerReceived: partnerAppreciations.length
+      };
+
+      // Generate AI-powered relationship analysis
+      const relationshipAnalysis = await analyzeRelationshipDynamics(
+        userActivitiesWithCategories,
+        partnerActivitiesWithCategories,
+        user?.name || 'User',
+        partner.name,
+        appreciationsData
+      );
+
+      // Generate personalized recommendations
+      const recommendations = await generateCoupleRecommendations(
+        relationshipAnalysis.insights,
+        userActivitiesWithCategories,
+        partnerActivitiesWithCategories,
+        user?.name || 'User',
+        partner.name
+      );
+
+      // Create relationship summary
+      const combinedStats = {
+        totalActivities: userActivities.length + partnerActivities.length,
+        totalPoints: userActivitiesWithCategories.reduce((sum, a) => sum + a.points, 0) + 
+                    partnerActivitiesWithCategories.reduce((sum, a) => sum + a.points, 0),
+        balance: {
+          userPercentage: userActivities.length + partnerActivities.length > 0 
+            ? (userActivities.length / (userActivities.length + partnerActivities.length)) * 100 
+            : 50,
+          partnerPercentage: userActivities.length + partnerActivities.length > 0 
+            ? (partnerActivities.length / (userActivities.length + partnerActivities.length)) * 100 
+            : 50
+        }
+      };
+
+      const highlights = relationshipAnalysis.patterns
+        .filter(p => p.strength === 'positive')
+        .map(p => p.description);
+      
+      const improvements = relationshipAnalysis.insights
+        .filter(i => i.priority === 'high' || i.priority === 'medium')
+        .map(i => i.recommendation);
+
+      const relationshipSummary = await generateRelationshipSummary(
+        '30 days',
+        combinedStats,
+        highlights,
+        improvements,
+        user?.name || 'User',
+        partner.name
+      );
+
+      const analysis = {
+        partner: {
+          id: partner.id,
+          name: partner.name,
+          email: partner.email,
+          avatar: partner.avatar
+        },
+        timeframe: '30 days',
+        summary: relationshipSummary,
+        healthScore: relationshipAnalysis.healthScore,
+        overallHealth: relationshipAnalysis.overallHealth,
+        insights: relationshipAnalysis.insights,
+        patterns: relationshipAnalysis.patterns,
+        recommendations: recommendations,
+        stats: {
+          activities: {
+            user: userActivities.length,
+            partner: partnerActivities.length,
+            total: userActivities.length + partnerActivities.length
+          },
+          points: {
+            user: userActivitiesWithCategories.reduce((sum, a) => sum + a.points, 0),
+            partner: partnerActivitiesWithCategories.reduce((sum, a) => sum + a.points, 0),
+            total: combinedStats.totalPoints
+          },
+          appreciations: appreciationsData
+        }
+      };
+
+      res.json(analysis);
+    } catch (error) {
+      console.error("Failed to generate AI couple analysis:", error);
+      res.status(500).json({ message: "Failed to generate couple analysis" });
     }
   });
 

@@ -504,3 +504,362 @@ Make predictions intelligent based on:
     return [];
   }
 }
+
+// Couple Analysis AI Functions
+
+export interface CoupleInsight {
+  type: 'balance' | 'collaboration' | 'appreciation' | 'growth' | 'strength';
+  title: string;
+  description: string;
+  recommendation: string;
+  priority: 'low' | 'medium' | 'high';
+  actionItems: string[];
+}
+
+export interface RelationshipPattern {
+  pattern: string;
+  description: string;
+  strength: 'positive' | 'neutral' | 'needs_attention';
+  examples: string[];
+  suggestion: string;
+}
+
+export async function analyzeRelationshipDynamics(
+  userActivities: Array<{
+    title: string;
+    category: string;
+    points: number;
+    completedAt: Date;
+  }>,
+  partnerActivities: Array<{
+    title: string;
+    category: string;
+    points: number;
+    completedAt: Date;
+  }>,
+  userName: string,
+  partnerName: string,
+  appreciationsData: {
+    userReceived: number;
+    partnerReceived: number;
+  }
+): Promise<{
+  insights: CoupleInsight[];
+  patterns: RelationshipPattern[];
+  overallHealth: 'excellent' | 'good' | 'needs_attention' | 'concerning';
+  healthScore: number;
+}> {
+  try {
+    // Prepare activity summaries for analysis
+    const userSummary = userActivities.map(a => ({
+      title: a.title,
+      category: a.category,
+      time: a.completedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      day: a.completedAt.toLocaleDateString('en-US', { weekday: 'short' }),
+      points: a.points
+    })).slice(0, 20); // Last 20 for analysis
+
+    const partnerSummary = partnerActivities.map(a => ({
+      title: a.title,
+      category: a.category,
+      time: a.completedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      day: a.completedAt.toLocaleDateString('en-US', { weekday: 'short' }),
+      points: a.points
+    })).slice(0, 20); // Last 20 for analysis
+
+    // Calculate balance metrics
+    const totalActivities = userActivities.length + partnerActivities.length;
+    const userPercentage = totalActivities > 0 ? (userActivities.length / totalActivities) * 100 : 50;
+    
+    const userPoints = userActivities.reduce((sum, a) => sum + a.points, 0);
+    const partnerPoints = partnerActivities.reduce((sum, a) => sum + a.points, 0);
+    const totalPoints = userPoints + partnerPoints;
+
+    // Calculate category overlap and specialization
+    const userCategories = [...new Set(userActivities.map(a => a.category))];
+    const partnerCategories = [...new Set(partnerActivities.map(a => a.category))];
+    const sharedCategories = userCategories.filter(c => partnerCategories.includes(c));
+
+    const prompt = `Analyze this couple's relationship dynamics and provide insights:
+
+RELATIONSHIP DATA:
+Partners: ${userName} and ${partnerName}
+Time Period: Last 30 days
+
+ACTIVITY BALANCE:
+- ${userName}: ${userActivities.length} activities (${Math.round(userPercentage)}%), ${userPoints} points
+- ${partnerName}: ${partnerActivities.length} activities (${Math.round(100 - userPercentage)}%), ${partnerPoints} points
+- Total: ${totalActivities} activities, ${totalPoints} points
+
+${userName}'S RECENT ACTIVITIES:
+${userSummary.map(a => `- ${a.title} (${a.category}) on ${a.day} at ${a.time} - ${a.points} pts`).join('\n')}
+
+${partnerName.toUpperCase()}'S RECENT ACTIVITIES:
+${partnerSummary.map(a => `- ${a.title} (${a.category}) on ${a.day} at ${a.time} - ${a.points} pts`).join('\n')}
+
+APPRECIATION PATTERNS:
+- ${userName} received: ${appreciationsData.userReceived} appreciations
+- ${partnerName} received: ${appreciationsData.partnerReceived} appreciations
+
+CATEGORY ANALYSIS:
+- ${userName} active in: ${userCategories.join(', ')}
+- ${partnerName} active in: ${partnerCategories.join(', ')}
+- Shared categories: ${sharedCategories.join(', ')}
+- Unique to ${userName}: ${userCategories.filter(c => !partnerCategories.includes(c)).join(', ') || 'None'}
+- Unique to ${partnerName}: ${partnerCategories.filter(c => !userCategories.includes(c)).join(', ') || 'None'}
+
+ANALYSIS REQUIREMENTS:
+1. Identify relationship strengths and growth opportunities
+2. Analyze collaboration patterns and balance
+3. Assess appreciation reciprocity
+4. Suggest actionable improvements
+5. Calculate overall relationship health score (0-100)
+
+Respond with JSON:
+{
+  "insights": [
+    {
+      "type": "balance",
+      "title": "Activity Balance Assessment",
+      "description": "Detailed analysis of workload distribution",
+      "recommendation": "Specific suggestion for improvement",
+      "priority": "medium",
+      "actionItems": ["Specific action 1", "Specific action 2"]
+    }
+  ],
+  "patterns": [
+    {
+      "pattern": "Complementary Strengths",
+      "description": "How partners complement each other",
+      "strength": "positive",
+      "examples": ["Example 1", "Example 2"],
+      "suggestion": "How to leverage this pattern"
+    }
+  ],
+  "overallHealth": "good",
+  "healthScore": 75
+}
+
+Focus on:
+- Activity balance and fairness
+- Complementary vs overlapping contributions  
+- Appreciation reciprocity and recognition
+- Time patterns and coordination
+- Category specialization vs sharing
+- Growth opportunities for the relationship
+
+Be encouraging while identifying genuine areas for improvement.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert relationship counselor AI that analyzes couple dynamics through their shared activities. Provide insights that are supportive, actionable, and focused on strengthening the relationship."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return {
+      insights: result.insights || [],
+      patterns: result.patterns || [],
+      overallHealth: result.overallHealth || 'good',
+      healthScore: Math.max(0, Math.min(100, result.healthScore || 75))
+    };
+  } catch (error) {
+    console.error("Failed to analyze relationship dynamics:", error);
+    return {
+      insights: [],
+      patterns: [],
+      overallHealth: 'good' as const,
+      healthScore: 75
+    };
+  }
+}
+
+export async function generateCoupleRecommendations(
+  insights: CoupleInsight[],
+  userActivities: Array<{ title: string; category: string; completedAt: Date; }>,
+  partnerActivities: Array<{ title: string; category: string; completedAt: Date; }>,
+  userName: string,
+  partnerName: string
+): Promise<{
+  weeklyGoals: Array<{
+    title: string;
+    description: string;
+    category: string;
+    targetUser: 'both' | 'user' | 'partner';
+    difficulty: 'easy' | 'medium' | 'challenging';
+    expectedImpact: string;
+  }>;
+  communicationSuggestions: Array<{
+    scenario: string;
+    suggestion: string;
+    example: string;
+  }>;
+  activitySuggestions: Array<{
+    title: string;
+    description: string;
+    category: string;
+    benefits: string;
+    howToStart: string;
+  }>;
+}> {
+  try {
+    // Find areas needing attention based on insights
+    const priorityInsights = insights.filter(i => i.priority === 'high' || i.priority === 'medium');
+    
+    // Get recent categories for context
+    const userCategories = [...new Set(userActivities.slice(0, 10).map(a => a.category))];
+    const partnerCategories = [...new Set(partnerActivities.slice(0, 10).map(a => a.category))];
+
+    const prompt = `Generate actionable recommendations for ${userName} and ${partnerName} based on their relationship analysis:
+
+PRIORITY INSIGHTS TO ADDRESS:
+${priorityInsights.map(i => `- ${i.type.toUpperCase()}: ${i.title} - ${i.description}`).join('\n')}
+
+CURRENT ACTIVITY PATTERNS:
+- ${userName} active in: ${userCategories.join(', ')}
+- ${partnerName} active in: ${partnerCategories.join(', ')}
+
+Generate practical, achievable recommendations that:
+1. Address the identified insights
+2. Build on existing strengths
+3. Improve relationship balance and connection
+4. Are specific and actionable
+
+Respond with JSON:
+{
+  "weeklyGoals": [
+    {
+      "title": "Specific goal title",
+      "description": "Clear description of the goal",
+      "category": "category_name",
+      "targetUser": "both",
+      "difficulty": "easy",
+      "expectedImpact": "How this will improve the relationship"
+    }
+  ],
+  "communicationSuggestions": [
+    {
+      "scenario": "When to use this",
+      "suggestion": "What to do or say",
+      "example": "Specific example dialogue"
+    }
+  ],
+  "activitySuggestions": [
+    {
+      "title": "New activity to try",
+      "description": "What it involves",
+      "category": "category_name",
+      "benefits": "How it helps the relationship",
+      "howToStart": "First steps to begin"
+    }
+  ]
+}
+
+Categories: household, childcare, finance, maintenance, cooking, shopping, transportation, emotional_support
+
+Make recommendations:
+- Specific and actionable
+- Appropriate for busy couples
+- Focused on positive change
+- Building on existing patterns
+- Creating new positive habits`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a relationship coach AI that creates practical, achievable recommendations for couples. Focus on building positive habits and improving relationship dynamics through concrete actions."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return {
+      weeklyGoals: result.weeklyGoals || [],
+      communicationSuggestions: result.communicationSuggestions || [],
+      activitySuggestions: result.activitySuggestions || []
+    };
+  } catch (error) {
+    console.error("Failed to generate couple recommendations:", error);
+    return {
+      weeklyGoals: [],
+      communicationSuggestions: [],
+      activitySuggestions: []
+    };
+  }
+}
+
+export async function generateRelationshipSummary(
+  timeframe: string,
+  combinedStats: {
+    totalActivities: number;
+    totalPoints: number;
+    balance: { userPercentage: number; partnerPercentage: number; };
+  },
+  highlights: string[],
+  improvements: string[],
+  userName: string,
+  partnerName: string
+): Promise<string> {
+  try {
+    const prompt = `Create a warm, encouraging relationship summary for ${userName} and ${partnerName}:
+
+TIMEFRAME: ${timeframe}
+
+ACHIEVEMENTS:
+- ${combinedStats.totalActivities} activities completed together
+- ${combinedStats.totalPoints} total points earned
+- ${userName}: ${Math.round(combinedStats.balance.userPercentage)}% of activities
+- ${partnerName}: ${Math.round(combinedStats.balance.partnerPercentage)}% of activities
+
+RELATIONSHIP HIGHLIGHTS:
+${highlights.map(h => `- ${h}`).join('\n')}
+
+AREAS OF GROWTH:
+${improvements.map(i => `- ${i}`).join('\n')}
+
+Write a 2-3 paragraph summary that:
+1. Celebrates their teamwork and contributions
+2. Acknowledges their individual strengths
+3. Encourages continued growth together
+4. Uses warm, supportive language
+5. Focuses on their partnership and collaboration
+
+Make it personal, uplifting, and motivating for their relationship journey.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a supportive relationship coach writing encouraging summaries for couples. Focus on celebrating their partnership, individual contributions, and shared growth."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+    });
+
+    return response.choices[0].message.content || 
+      `${userName} and ${partnerName}, you've been doing amazing work together! In the ${timeframe}, you've completed ${combinedStats.totalActivities} activities as a team, showing your commitment to supporting each other and your relationship. Keep celebrating your individual strengths and growing together! 💕`;
+  } catch (error) {
+    console.error("Failed to generate relationship summary:", error);
+    return `${userName} and ${partnerName}, you're doing great work together! Keep supporting each other and celebrating your shared contributions. 💕`;
+  }
+}
