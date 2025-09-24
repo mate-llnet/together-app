@@ -36,6 +36,7 @@ APP_USER="together"
 APP_DIR="/opt/together"
 NODE_VERSION="20"
 POSTGRES_VERSION="15"
+USE_DATABASE="false"
 
 # Check if running as root
 if [[ $EUID -eq 0 ]]; then
@@ -89,36 +90,46 @@ banner() {
     echo
 }
 
-# PostgreSQL configuration function
-configure_postgres() {
+# Database configuration function
+configure_database() {
     echo
-    log "PostgreSQL Configuration"
-    echo "Choose PostgreSQL installation type:"
-    echo "1) Local PostgreSQL (install on this server)"
-    echo "2) Remote PostgreSQL (connect to external database)"
+    log "Database Configuration"
+    echo "Choose database option:"
+    echo "1) In-memory storage (default, no database required)"
+    echo "2) Local PostgreSQL (install on this server)"
+    echo "3) Remote PostgreSQL (connect to external database)"
     echo
     
     while true; do
-        read -p "Enter choice (1 or 2): " postgres_choice
-        case $postgres_choice in
+        read -p "Enter choice (1, 2, or 3) [1]: " db_choice
+        case ${db_choice:-1} in
             1)
-                POSTGRES_TYPE="local"
+                DATABASE_TYPE="memory"
+                USE_DATABASE="false"
                 break
                 ;;
             2)
-                POSTGRES_TYPE="remote"
+                DATABASE_TYPE="local"
+                USE_DATABASE="true"
+                break
+                ;;
+            3)
+                DATABASE_TYPE="remote"
+                USE_DATABASE="true"
                 break
                 ;;
             *)
-                error "Invalid choice. Please enter 1 or 2."
+                error "Invalid choice. Please enter 1, 2, or 3."
                 ;;
         esac
     done
     
-    if [ "$POSTGRES_TYPE" = "local" ]; then
+    if [ "$DATABASE_TYPE" = "local" ]; then
         configure_local_postgres
-    else
+    elif [ "$DATABASE_TYPE" = "remote" ]; then
         configure_remote_postgres
+    else
+        log "Using in-memory storage (no database setup required)"
     fi
 }
 
@@ -135,14 +146,18 @@ configure_local_postgres() {
     prompt_user "Database username" DB_USER "$DB_USER"
     
     echo
-    info "Generated database password: $DB_PASSWORD"
-    warn "Please save this password - it will be needed for the application configuration"
+    warn "A secure database password has been generated and will be saved to the configuration file."
+    info "You can view it later in /opt/together/.env if needed."
     echo
     read -p "Press Enter to continue or Ctrl+C to abort..."
 }
 
 configure_remote_postgres() {
     log "Configuring remote PostgreSQL connection..."
+    
+    # Install PostgreSQL client for connection testing
+    log "Installing PostgreSQL client..."
+    sudo apt-get install -y postgresql-client
     
     prompt_user "Database host" DB_HOST
     prompt_user "Database port" DB_PORT "5432"
@@ -223,7 +238,7 @@ install_local_postgres() {
     
     # Create database user and database
     log "Creating database user and database..."
-    sudo -u postgres createuser "$DB_USER"
+    sudo -u postgres createuser --no-superuser --no-createdb --no-createrole "$DB_USER"
     sudo -u postgres createdb "$DB_NAME" -O "$DB_USER"
     sudo -u postgres psql -c "ALTER USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
     
@@ -231,11 +246,12 @@ install_local_postgres() {
     POSTGRES_CONFIG="/etc/postgresql/$POSTGRES_VERSION/main"
     sudo cp "$POSTGRES_CONFIG/pg_hba.conf" "$POSTGRES_CONFIG/pg_hba.conf.backup"
     
-    # Allow local connections
+    # Allow local connections (Unix socket and TCP)
     echo "local   $DB_NAME    $DB_USER                                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
+    echo "host    $DB_NAME    $DB_USER    127.0.0.1/32                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
     
-    # Restart PostgreSQL
-    sudo systemctl restart postgresql
+    # Reload PostgreSQL configuration
+    sudo systemctl reload postgresql
     
     log "PostgreSQL installation completed successfully!"
 }
@@ -279,13 +295,19 @@ setup_application() {
         esac
     done
     
-    # Install application dependencies
+    # Install application dependencies (including dev dependencies for build)
     log "Installing application dependencies..."
-    sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm ci --production"
+    sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm ci"
     
     # Build application
     log "Building application..."
-    sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run build"
+    if sudo -u "$APP_USER" bash -c "cd $APP_DIR && [ -f package.json ] && npm run build"; then
+        log "Build completed successfully"
+        # Optional: Remove dev dependencies after build for production
+        # sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm prune --production"
+    else
+        warn "Build step failed or not available, application will run in development mode"
+    fi
 }
 
 setup_from_git() {
@@ -329,14 +351,6 @@ configure_environment() {
     
     # Create environment file
     cat > /tmp/together.env << EOF
-# Database Configuration
-DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-PGHOST=${DB_HOST}
-PGPORT=${DB_PORT}
-PGUSER=${DB_USER}
-PGPASSWORD=${DB_PASSWORD}
-PGDATABASE=${DB_NAME}
-
 # Application Configuration
 NODE_ENV=production
 PORT=3000
@@ -345,6 +359,20 @@ SESSION_SECRET=${SESSION_SECRET}
 # OpenAI Configuration
 OPENAI_API_KEY=${OPENAI_API_KEY}
 EOF
+
+    # Add database configuration only if using database
+    if [ "$USE_DATABASE" = "true" ]; then
+        cat >> /tmp/together.env << EOF
+
+# Database Configuration
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+PGHOST=${DB_HOST}
+PGPORT=${DB_PORT}
+PGUSER=${DB_USER}
+PGPASSWORD=${DB_PASSWORD}
+PGDATABASE=${DB_NAME}
+EOF
+    fi
     
     # Move environment file and set permissions
     sudo mv /tmp/together.env "$APP_DIR/.env"
@@ -356,28 +384,36 @@ EOF
 
 # Setup database
 setup_database() {
-    log "Setting up application database..."
-    
-    # Run database migrations
-    sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run db:push"
-    
-    log "Database setup completed"
+    if [ "$USE_DATABASE" = "true" ]; then
+        log "Setting up application database..."
+        
+        # Run database migrations
+        if sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run db:push"; then
+            log "Database setup completed"
+        else
+            warn "Database migration failed or not available. Application will use in-memory storage."
+        fi
+    else
+        log "Skipping database setup (using in-memory storage)"
+    fi
 }
 
 # Configure PM2
 configure_pm2() {
     log "Configuring PM2 process manager..."
     
-    # Create PM2 ecosystem file
+    # Create PM2 ecosystem file  
+    # NOTE: This runs the development server for simplicity
+    # For production, consider creating a proper build process
     cat > /tmp/ecosystem.config.js << 'EOF'
 module.exports = {
   apps: [{
     name: 'together',
     script: 'npm',
-    args: 'start',
+    args: 'run dev',
     cwd: '/opt/together',
     env: {
-      NODE_ENV: 'production',
+      NODE_ENV: 'development',
       PORT: 3000
     },
     instances: 1,
@@ -437,8 +473,7 @@ configure_firewall() {
     sudo ufw allow 80/tcp
     sudo ufw allow 443/tcp
     
-    # Allow application port
-    sudo ufw allow 3000/tcp
+    # Note: Not allowing 3000/tcp as Nginx handles all public traffic
     
     # Enable firewall
     sudo ufw --force enable
@@ -504,7 +539,13 @@ server {
 
     # Health check endpoint
     location /health {
-        proxy_pass http://127.0.0.1:3000/health;
+        proxy_pass http://127.0.0.1:3000/api/health;
+        access_log off;
+    }
+
+    # API health check (alternative path)
+    location /api/health {
+        proxy_pass http://127.0.0.1:3000/api/health;
         access_log off;
     }
 }
@@ -529,43 +570,70 @@ EOF
 start_application() {
     log "Starting Together application..."
     
-    # Start application with PM2
+    # Setup PM2 startup for system service
+    sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$APP_USER" --hp "$APP_DIR" || true
+    
+    # Start application with PM2 as app user
     sudo -u "$APP_USER" bash -c "cd $APP_DIR && pm2 start ecosystem.config.js"
+    
+    # Save PM2 process list for startup
     sudo -u "$APP_USER" pm2 save
-    sudo pm2 startup systemd -u "$APP_USER" --hp "$APP_DIR"
     
     # Wait for application to start
-    sleep 5
+    sleep 10
     
     # Check if application is running
     if sudo -u "$APP_USER" pm2 list | grep -q "together.*online"; then
         log "Application started successfully!"
+        
+        # Test health endpoint
+        if curl -f -s http://localhost:3000/api/health > /dev/null; then
+            log "Health check passed!"
+        else
+            warn "Health check failed, but application appears to be starting"
+            info "You can test manually with: curl http://localhost:3000/api/health"
+        fi
     else
-        error "Application failed to start. Check logs with: pm2 logs together"
-        exit 1
+        error "Application failed to start. Check logs with: sudo -u $APP_USER pm2 logs together"
+        warn "You can also try: sudo -u $APP_USER pm2 restart together"
+        # Don't exit - let user debug
     fi
 }
 
 # SSL certificate setup
 setup_ssl() {
-    echo
-    info "Would you like to set up SSL certificate with Let's Encrypt? (recommended for production)"
-    read -p "Setup SSL? (y/N): " setup_ssl_choice
-    
-    if [[ $setup_ssl_choice =~ ^[Yy]$ ]]; then
-        log "Setting up SSL certificate..."
+    if [ -n "$DOMAIN_NAME" ] && [ "$DOMAIN_NAME" != "localhost" ]; then
+        echo
+        info "Would you like to set up SSL certificate with Let's Encrypt? (recommended for production)"
+        read -p "Setup SSL? (y/N): " setup_ssl_choice
         
-        # Install Certbot
-        sudo apt-get install -y certbot python3-certbot-nginx
-        
-        # Obtain certificate
-        sudo certbot --nginx -d "$DOMAIN_NAME" --non-interactive --agree-tos --email "admin@${DOMAIN_NAME}"
-        
-        # Setup auto-renewal
-        sudo systemctl enable certbot.timer
-        
-        log "SSL certificate configured successfully!"
-        info "Certificate will auto-renew via systemd timer"
+        if [[ $setup_ssl_choice =~ ^[Yy]$ ]]; then
+            log "Setting up SSL certificate..."
+            
+            # Install Certbot and nginx plugin
+            sudo apt-get install -y snapd
+            sudo snap install core; sudo snap refresh core 2>/dev/null || true
+            sudo snap install --classic certbot
+            sudo ln -sf /snap/bin/certbot /usr/bin/certbot
+            
+            # Also install via apt as fallback
+            sudo apt-get install -y certbot python3-certbot-nginx
+            
+            # Obtain certificate
+            if sudo certbot --nginx -d "$DOMAIN_NAME" --non-interactive --agree-tos --email "admin@${DOMAIN_NAME}" --redirect; then
+                log "SSL certificate configured successfully!"
+                info "Certificate will auto-renew via systemd timer"
+                
+                # Enable auto-renewal
+                sudo systemctl enable certbot.timer
+                sudo systemctl start certbot.timer
+            else
+                error "SSL certificate setup failed. Check DNS and domain configuration."
+                info "You can run 'sudo certbot --nginx -d $DOMAIN_NAME' manually later"
+            fi
+        fi
+    else
+        info "Skipping SSL setup (no domain name configured)"
     fi
 }
 
@@ -626,13 +694,13 @@ main() {
     
     # Configuration phase
     log "Starting Together app installation..."
-    configure_postgres
+    configure_database
     
     # System setup
     install_system_packages
     install_nodejs
     
-    if [ "$POSTGRES_TYPE" = "local" ]; then
+    if [ "$DATABASE_TYPE" = "local" ]; then
         install_local_postgres
     fi
     

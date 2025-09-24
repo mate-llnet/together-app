@@ -14,6 +14,15 @@ import { seedAchievements } from "./services/seed-achievements";
 import { seedDefaultAdmin } from "./services/seed-admin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      service: "together-app" 
+    });
+  });
+
   // Ensure achievements and default admin are seeded on startup
   try {
     await seedAchievements();
