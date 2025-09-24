@@ -7,6 +7,7 @@ import PartnerAppreciation from "@/components/dashboard/partner-appreciation";
 import WeeklyProgress from "@/components/dashboard/weekly-progress";
 import { ActivityPredictions } from "@/components/dashboard/activity-predictions";
 import { SmartReminders } from "@/components/dashboard/smart-reminders";
+import { AchievementsMilestones } from "@/components/dashboard/achievements-milestones";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "wouter";
@@ -114,6 +115,7 @@ export default function Dashboard() {
         {/* Today's Activities */}
         <div className="lg:col-span-2 space-y-6">
           <TodayActivities />
+          <AchievementsMilestones />
           <ActivityPredictions />
           <AiSuggestions />
         </div>

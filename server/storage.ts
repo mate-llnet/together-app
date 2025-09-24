@@ -10,12 +10,24 @@ import {
   type InsertAppreciation,
   type AiSuggestion,
   type InsertAiSuggestion,
+  type Achievement,
+  type InsertAchievement,
+  type UserAchievement,
+  type InsertUserAchievement,
+  type UserStats,
+  type InsertUserStats,
+  type Milestone,
+  type InsertMilestone,
   users,
   couples,
   activityCategories,
   activities,
   appreciations,
-  aiSuggestions
+  aiSuggestions,
+  achievements,
+  userAchievements,
+  userStats,
+  milestones
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { drizzle } from "drizzle-orm/neon-serverless";
@@ -53,6 +65,7 @@ export interface IStorage {
   // Activities
   getActivitiesByUser(userId: string, limit?: number): Promise<Activity[]>;
   getActivitiesByUserAndDate(userId: string, date: string): Promise<Activity[]>;
+  getActivitiesByUserBetween(userId: string, startDate: Date, endDate: Date): Promise<Activity[]>;
   createActivity(activity: InsertActivity & { userId: string }): Promise<Activity>;
   getActivity(id: string): Promise<Activity | undefined>;
 
@@ -65,6 +78,28 @@ export interface IStorage {
   createAiSuggestion(suggestion: InsertAiSuggestion & { userId: string }): Promise<AiSuggestion>;
   updateAiSuggestion(id: string, updates: Partial<AiSuggestion>): Promise<AiSuggestion | undefined>;
   getAiSuggestion(id: string): Promise<AiSuggestion | undefined>;
+
+  // Gamification - Achievements
+  getAchievements(): Promise<Achievement[]>;
+  getAchievement(id: string): Promise<Achievement | undefined>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  updateAchievement(id: string, updates: Partial<Achievement>): Promise<Achievement | undefined>;
+
+  // Gamification - User Achievements  
+  getUserAchievements(userId: string): Promise<UserAchievement[]>;
+  awardAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement>;
+  markAchievementSeen(userId: string, achievementId: string): Promise<void>;
+
+  // Gamification - User Stats
+  getUserStats(userId: string): Promise<UserStats | undefined>;
+  createUserStats(userStats: InsertUserStats & { userId: string }): Promise<UserStats>;
+  updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats | undefined>;
+
+  // Gamification - Milestones
+  getUserMilestones(userId: string): Promise<Milestone[]>;
+  createMilestone(milestone: InsertMilestone & { userId: string }): Promise<Milestone>;
+  updateMilestone(id: string, updates: Partial<Milestone>): Promise<Milestone | undefined>;
+  completeMilestone(id: string): Promise<Milestone | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -414,6 +449,16 @@ export class DrizzleStorage implements IStorage {
     return result[0];
   }
 
+  async getActivitiesByUserBetween(userId: string, startDate: Date, endDate: Date): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(
+        eq(activities.userId, userId),
+        gte(activities.completedAt, startDate),
+        lt(activities.completedAt, endDate)
+      )
+    ).orderBy(desc(activities.completedAt));
+  }
+
   async getActivity(id: string): Promise<Activity | undefined> {
     const result = await db.select().from(activities).where(eq(activities.id, id));
     return result[0];
@@ -453,6 +498,90 @@ export class DrizzleStorage implements IStorage {
 
   async getAiSuggestion(id: string): Promise<AiSuggestion | undefined> {
     const result = await db.select().from(aiSuggestions).where(eq(aiSuggestions.id, id));
+    return result[0];
+  }
+
+  // Gamification - Achievements
+  async getAchievements(): Promise<Achievement[]> {
+    return await db.select().from(achievements).where(eq(achievements.isActive, true));
+  }
+
+  async getAchievement(id: string): Promise<Achievement | undefined> {
+    const result = await db.select().from(achievements).where(eq(achievements.id, id));
+    return result[0];
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const result = await db.insert(achievements).values(achievement).returning();
+    return result[0];
+  }
+
+  async updateAchievement(id: string, updates: Partial<Achievement>): Promise<Achievement | undefined> {
+    const result = await db.update(achievements).set(updates).where(eq(achievements.id, id)).returning();
+    return result[0];
+  }
+
+  // Gamification - User Achievements  
+  async getUserAchievements(userId: string): Promise<UserAchievement[]> {
+    return await db.select().from(userAchievements)
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+  }
+
+  async awardAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement> {
+    const result = await db.insert(userAchievements).values(userAchievement).returning();
+    return result[0];
+  }
+
+  async markAchievementSeen(userId: string, achievementId: string): Promise<void> {
+    await db.update(userAchievements)
+      .set({ isNew: false })
+      .where(
+        and(
+          eq(userAchievements.userId, userId),
+          eq(userAchievements.achievementId, achievementId)
+        )
+      );
+  }
+
+  // Gamification - User Stats
+  async getUserStats(userId: string): Promise<UserStats | undefined> {
+    const result = await db.select().from(userStats).where(eq(userStats.userId, userId));
+    return result[0];
+  }
+
+  async createUserStats(userStatsData: InsertUserStats & { userId: string }): Promise<UserStats> {
+    const result = await db.insert(userStats).values(userStatsData).returning();
+    return result[0];
+  }
+
+  async updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats | undefined> {
+    const result = await db.update(userStats).set(updates).where(eq(userStats.userId, userId)).returning();
+    return result[0];
+  }
+
+  // Gamification - Milestones
+  async getUserMilestones(userId: string): Promise<Milestone[]> {
+    return await db.select().from(milestones)
+      .where(eq(milestones.userId, userId))
+      .orderBy(desc(milestones.createdAt));
+  }
+
+  async createMilestone(milestoneData: InsertMilestone & { userId: string }): Promise<Milestone> {
+    const result = await db.insert(milestones).values(milestoneData).returning();
+    return result[0];
+  }
+
+  async updateMilestone(id: string, updates: Partial<Milestone>): Promise<Milestone | undefined> {
+    const result = await db.update(milestones).set(updates).where(eq(milestones.id, id)).returning();
+    return result[0];
+  }
+
+  async completeMilestone(id: string): Promise<Milestone | undefined> {
+    const result = await db.update(milestones)
+      .set({ isCompleted: true, completedAt: new Date() })
+      .where(eq(milestones.id, id))
+      .returning();
     return result[0];
   }
 }

@@ -9,8 +9,17 @@ import {
   insertAppreciationSchema
 } from "@shared/schema";
 import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders } from "./services/openai";
+import { GamificationService } from "./services/gamification";
+import { seedAchievements } from "./services/seed-achievements";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure achievements are seeded on startup
+  try {
+    await seedAchievements();
+  } catch (error) {
+    console.error("Failed to seed achievements:", error);
+  }
+
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -219,8 +228,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         points,
       });
 
+      // Trigger gamification updates
+      const gamificationUpdate = await GamificationService.updateUserStats(userId, activity);
+
+      // Initialize default milestones for new users if needed  
+      const userStats = await storage.getUserStats(userId);
+      if (!userStats || userStats.totalActivities === 1) {
+        await GamificationService.createDefaultMilestones(userId);
+      }
+
       const category = await storage.getActivityCategory(activity.categoryId);
-      res.json({ activity: { ...activity, category } });
+      res.json({ 
+        activity: { ...activity, category },
+        gamification: gamificationUpdate
+      });
     } catch (error) {
       res.status(400).json({ message: "Invalid activity data" });
     }
@@ -328,8 +349,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isAiSuggested: true,
         });
 
+        // Trigger gamification updates
+        const gamificationUpdate = await GamificationService.updateUserStats(userId, activity);
+
+        // Initialize default milestones for new users if needed  
+        const userStats = await storage.getUserStats(userId);
+        if (!userStats || userStats.totalActivities === 1) {
+          await GamificationService.createDefaultMilestones(userId);
+        }
+
         const category = await storage.getActivityCategory(activity.categoryId);
-        res.json({ activity: { ...activity, category } });
+        res.json({ 
+          activity: { ...activity, category },
+          gamification: gamificationUpdate
+        });
       } else {
         res.status(404).json({ message: "Suggestion not found" });
       }
@@ -570,6 +603,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message,
       });
 
+      // Check achievements for the user receiving the appreciation
+      try {
+        // Initialize user stats if they don't exist yet
+        const userStats = await GamificationService.initializeUserStats(data.toUserId);
+        
+        // Only check appreciation_master achievement to avoid awarding time-based achievements incorrectly
+        const allAchievements = await storage.getAchievements();
+        const userAchievements = await storage.getUserAchievements(data.toUserId);
+        const earnedAchievementIds = new Set(userAchievements.map(ua => ua.achievementId));
+        
+        for (const achievement of allAchievements) {
+          if (earnedAchievementIds.has(achievement.id)) {
+            continue; // Already earned
+          }
+          
+          const criteria = JSON.parse(achievement.criteria);
+          
+          // Only check appreciation_master for appreciation events
+          if (criteria.type === "special" && criteria.conditions.includes("appreciation_master")) {
+            const appreciations = await storage.getAppreciationsByUser(data.toUserId);
+            if (appreciations.length >= 10) {
+              await storage.awardAchievement({
+                userId: data.toUserId,
+                achievementId: achievement.id,
+                progress: 100,
+                isNew: true,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check achievements for appreciation:", error);
+        // Don't fail the appreciation creation if achievement checking fails
+      }
+
       res.json({ appreciation });
     } catch (error) {
       res.status(400).json({ message: "Invalid appreciation data" });
@@ -588,6 +656,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ appreciations });
     } catch (error) {
       res.status(500).json({ message: "Failed to get appreciations" });
+    }
+  });
+
+  // Gamification routes  
+  app.get("/api/gamification/stats", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const userStats = await GamificationService.initializeUserStats(userId);
+      const currentLevelStart = GamificationService.getPointsForLevelStart(userStats.level);
+      const nextLevelPoints = GamificationService.getPointsForNextLevel(userStats.level);
+      const progressToNextLevel = nextLevelPoints > currentLevelStart 
+        ? ((userStats.totalPoints - currentLevelStart) / (nextLevelPoints - currentLevelStart)) * 100 
+        : 0;
+      
+      res.json({ 
+        stats: userStats,
+        currentLevelStart,
+        nextLevelPoints,
+        progressToNextLevel: Math.max(0, Math.min(100, progressToNextLevel))
+      });
+    } catch (error) {
+      console.error("Failed to get user stats:", error);
+      res.status(500).json({ message: "Failed to get user stats" });
+    }
+  });
+
+  app.get("/api/gamification/achievements", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const userAchievements = await storage.getUserAchievements(userId);
+      const allAchievements = await storage.getAchievements();
+      
+      // Map achievements with earned status
+      const achievementsWithStatus = allAchievements.map(achievement => {
+        const earned = userAchievements.find(ua => ua.achievementId === achievement.id);
+        return {
+          ...achievement,
+          isEarned: !!earned,
+          earnedAt: earned?.earnedAt || null,
+          isNew: earned?.isNew || false,
+          progress: earned?.progress || 0
+        };
+      });
+
+      res.json({ 
+        achievements: achievementsWithStatus,
+        totalEarned: userAchievements.length,
+        newAchievements: userAchievements.filter(ua => ua.isNew).length
+      });
+    } catch (error) {
+      console.error("Failed to get achievements:", error);
+      res.status(500).json({ message: "Failed to get achievements" });
+    }
+  });
+
+  app.post("/api/gamification/achievements/:achievementId/seen", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      const { achievementId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      await storage.markAchievementSeen(userId, achievementId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to mark achievement as seen:", error);
+      res.status(500).json({ message: "Failed to mark achievement as seen" });
+    }
+  });
+
+  app.get("/api/gamification/milestones", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const milestones = await storage.getUserMilestones(userId);
+      const userStats = await storage.getUserStats(userId);
+      
+      // Update milestone progress based on current stats
+      const milestonesWithProgress = milestones.map(milestone => {
+        let currentProgress = 0;
+        
+        switch (milestone.type) {
+          case "point_milestone":
+            currentProgress = userStats?.totalPoints || 0;
+            break;
+          case "streak_milestone":
+            currentProgress = userStats?.currentStreak || 0;
+            break;
+          default:
+            currentProgress = milestone.currentValue;
+        }
+        
+        return {
+          ...milestone,
+          currentValue: currentProgress,
+          progressPercentage: Math.min((currentProgress / milestone.targetValue) * 100, 100)
+        };
+      });
+
+      res.json({ milestones: milestonesWithProgress });
+    } catch (error) {
+      console.error("Failed to get milestones:", error);
+      res.status(500).json({ message: "Failed to get milestones" });
     }
   });
 
