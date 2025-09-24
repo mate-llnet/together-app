@@ -9,9 +9,28 @@ import {
   type Appreciation,
   type InsertAppreciation,
   type AiSuggestion,
-  type InsertAiSuggestion
+  type InsertAiSuggestion,
+  users,
+  couples,
+  activityCategories,
+  activities,
+  appreciations,
+  aiSuggestions
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { neonConfig, Pool } from "@neondatabase/serverless";
+import { eq, and, desc, gte, lt } from "drizzle-orm";
+import ws from "ws";
+
+// Configure for server-side usage
+neonConfig.fetchConnectionCache = true;
+neonConfig.webSocketConstructor = ws;
+
+const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL
+});
+const db = drizzle(pool);
 
 export interface IStorage {
   // Users
@@ -195,7 +214,8 @@ export class MemStorage implements IStorage {
       id, 
       completedAt: new Date(),
       isAiSuggested: activityData.isAiSuggested || false,
-      description: activityData.description || null
+      description: activityData.description || null,
+      points: activityData.points ?? 5
     };
     this.activities.set(id, activity);
     return activity;
@@ -259,4 +279,182 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DrizzleStorage implements IStorage {
+  constructor() {
+    this.initializeCategories();
+  }
+
+  private async initializeCategories() {
+    const existingCategories = await db.select().from(activityCategories);
+    if (existingCategories.length === 0) {
+      const categories: ActivityCategory[] = [
+        { id: "household", name: "Household", icon: "fas fa-home", color: "primary" },
+        { id: "childcare", name: "Childcare", icon: "fas fa-baby", color: "blue-500" },
+        { id: "finance", name: "Finance", icon: "fas fa-dollar-sign", color: "green-500" },
+        { id: "maintenance", name: "Maintenance", icon: "fas fa-wrench", color: "purple-500" },
+        { id: "cooking", name: "Cooking", icon: "fas fa-utensils", color: "pink-500" },
+        { id: "shopping", name: "Shopping", icon: "fas fa-shopping-cart", color: "amber-500" },
+        { id: "transportation", name: "Transportation", icon: "fas fa-car", color: "blue-500" },
+        { id: "emotional_support", name: "Emotional Support", icon: "fas fa-heart", color: "secondary" },
+      ];
+
+      await db.insert(activityCategories).values(categories);
+    }
+  }
+
+  // Users
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const result = await db.update(users).set(updates).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  // Couples
+  async getCouple(userId: string): Promise<Couple | undefined> {
+    const result = await db.select().from(couples).where(
+      and(
+        eq(couples.user1Id, userId)
+      )
+    ).union(
+      db.select().from(couples).where(eq(couples.user2Id, userId))
+    );
+    return result[0];
+  }
+
+  async createCouple(insertCouple: InsertCouple): Promise<Couple> {
+    const result = await db.insert(couples).values(insertCouple).returning();
+    return result[0];
+  }
+
+  async updateCouple(id: string, updates: Partial<Couple>): Promise<Couple | undefined> {
+    const result = await db.update(couples).set(updates).where(eq(couples.id, id)).returning();
+    return result[0];
+  }
+
+  async getCoupleByUsers(user1Id: string, user2Id: string): Promise<Couple | undefined> {
+    const result = await db.select().from(couples).where(
+      and(
+        eq(couples.user1Id, user1Id),
+        eq(couples.user2Id, user2Id)
+      )
+    ).union(
+      db.select().from(couples).where(
+        and(
+          eq(couples.user1Id, user2Id),
+          eq(couples.user2Id, user1Id)
+        )
+      )
+    );
+    return result[0];
+  }
+
+  // Activity Categories
+  async getActivityCategories(): Promise<ActivityCategory[]> {
+    return await db.select().from(activityCategories);
+  }
+
+  async getActivityCategory(id: string): Promise<ActivityCategory | undefined> {
+    const result = await db.select().from(activityCategories).where(eq(activityCategories.id, id));
+    return result[0];
+  }
+
+  async getActivityCategoryByName(name: string): Promise<ActivityCategory | undefined> {
+    const result = await db.select().from(activityCategories).where(eq(activityCategories.name, name));
+    return result[0];
+  }
+
+  // Activities
+  async getActivitiesByUser(userId: string, limit?: number): Promise<Activity[]> {
+    const query = db.select().from(activities)
+      .where(eq(activities.userId, userId))
+      .orderBy(desc(activities.completedAt));
+    
+    if (limit) {
+      return await query.limit(limit);
+    }
+    
+    return await query;
+  }
+
+  async getActivitiesByUserAndDate(userId: string, date: string): Promise<Activity[]> {
+    const targetDate = new Date(date);
+    const startOfDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+    return await db.select().from(activities).where(
+      and(
+        eq(activities.userId, userId),
+        gte(activities.completedAt, startOfDay),
+        lt(activities.completedAt, endOfDay)
+      )
+    ).orderBy(desc(activities.completedAt));
+  }
+
+  async createActivity(activityData: InsertActivity & { userId: string }): Promise<Activity> {
+    const dataWithDefaults = {
+      ...activityData,
+      points: activityData.points ?? 5,
+      isAiSuggested: activityData.isAiSuggested ?? false
+    };
+    const result = await db.insert(activities).values(dataWithDefaults).returning();
+    return result[0];
+  }
+
+  async getActivity(id: string): Promise<Activity | undefined> {
+    const result = await db.select().from(activities).where(eq(activities.id, id));
+    return result[0];
+  }
+
+  // Appreciations
+  async getAppreciationsByUser(userId: string): Promise<Appreciation[]> {
+    return await db.select().from(appreciations)
+      .where(eq(appreciations.toUserId, userId))
+      .orderBy(desc(appreciations.createdAt));
+  }
+
+  async createAppreciation(insertAppreciation: InsertAppreciation): Promise<Appreciation> {
+    const result = await db.insert(appreciations).values(insertAppreciation).returning();
+    return result[0];
+  }
+
+  // AI Suggestions
+  async getAiSuggestionsByUser(userId: string): Promise<AiSuggestion[]> {
+    return await db.select().from(aiSuggestions).where(
+      and(
+        eq(aiSuggestions.userId, userId),
+        eq(aiSuggestions.isAccepted, false)
+      )
+    ).orderBy(desc(aiSuggestions.createdAt));
+  }
+
+  async createAiSuggestion(suggestionData: InsertAiSuggestion & { userId: string }): Promise<AiSuggestion> {
+    const result = await db.insert(aiSuggestions).values(suggestionData).returning();
+    return result[0];
+  }
+
+  async updateAiSuggestion(id: string, updates: Partial<AiSuggestion>): Promise<AiSuggestion | undefined> {
+    const result = await db.update(aiSuggestions).set(updates).where(eq(aiSuggestions.id, id)).returning();
+    return result[0];
+  }
+
+  async getAiSuggestion(id: string): Promise<AiSuggestion | undefined> {
+    const result = await db.select().from(aiSuggestions).where(eq(aiSuggestions.id, id));
+    return result[0];
+  }
+}
+
+export const storage = new DrizzleStorage();
