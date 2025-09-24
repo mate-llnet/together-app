@@ -52,8 +52,8 @@ export default function Dashboard() {
               Good {timeOfDay}, {user?.name}! 👋
             </h2>
             <p className="text-muted-foreground">
-              {partner?.partner ? 
-                `Let's see what you and ${partner.partner.name} accomplished today` :
+              {partner.partner ? 
+                `Let's see what you and ${partner.name} accomplished today` :
                 "Let's see what you accomplished today"
               }
             </p>
