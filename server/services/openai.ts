@@ -144,3 +144,169 @@ export async function generateAppreciationMessage(activityTitle: string): Promis
     return "Thank you for everything you do! ❤️";
   }
 }
+
+export interface ActivityPrediction {
+  title: string;
+  description: string;
+  category: string;
+  points: number;
+  confidence: number;
+  reasoning: string;
+  predictedTime: string;
+}
+
+export interface UserPatterns {
+  commonTimes: string[];
+  frequentCategories: string[];
+  averageActivitiesPerDay: number;
+  longestStreak: number;
+  totalActivities: number;
+}
+
+export async function analyzeUserPatterns(activities: Array<{
+  title: string;
+  category: string;
+  points: number;
+  completedAt: Date;
+}>): Promise<UserPatterns> {
+  try {
+    const activitySummary = activities.map(a => ({
+      title: a.title,
+      category: a.category,
+      time: a.completedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      day: a.completedAt.toLocaleDateString('en-US', { weekday: 'long' }),
+      points: a.points
+    }));
+
+    const prompt = `Analyze these user activity patterns and provide insights:
+
+Activities (last ${activities.length} entries):
+${activitySummary.map(a => `- ${a.title} (${a.category}) at ${a.time} on ${a.day} - ${a.points} pts`).join('\n')}
+
+Respond with JSON:
+{
+  "commonTimes": ["morning", "afternoon", "evening"],
+  "frequentCategories": ["category1", "category2"],
+  "averageActivitiesPerDay": 3.5,
+  "longestStreak": 7,
+  "totalActivities": ${activities.length}
+}
+
+Analyze when they're most active, which categories they prefer, and their consistency patterns.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI that analyzes user behavior patterns from activity data to identify trends and habits."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return {
+      commonTimes: result.commonTimes || [],
+      frequentCategories: result.frequentCategories || [],
+      averageActivitiesPerDay: result.averageActivitiesPerDay || 0,
+      longestStreak: result.longestStreak || 0,
+      totalActivities: activities.length
+    };
+  } catch (error) {
+    console.error("Failed to analyze user patterns:", error);
+    return {
+      commonTimes: [],
+      frequentCategories: [],
+      averageActivitiesPerDay: 0,
+      longestStreak: 0,
+      totalActivities: activities.length
+    };
+  }
+}
+
+export async function generateActivityPredictions(
+  recentActivities: Array<{
+    title: string;
+    category: string;
+    points: number;
+    completedAt: Date;
+  }>,
+  userPatterns: UserPatterns,
+  currentTime: Date
+): Promise<ActivityPrediction[]> {
+  try {
+    const timeOfDay = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dayOfWeek = currentTime.toLocaleDateString('en-US', { weekday: 'long' });
+    const hour = currentTime.getHours();
+    
+    let timeContext = "morning";
+    if (hour >= 12 && hour < 17) timeContext = "afternoon";
+    else if (hour >= 17) timeContext = "evening";
+
+    const recentTitles = recentActivities.slice(0, 5).map(a => a.title);
+    const recentCategories = recentActivities.slice(0, 10).map(a => a.category);
+
+    const prompt = `Based on user patterns and current context, predict 3 activities they might do next:
+
+User Patterns:
+- Common active times: ${userPatterns.commonTimes.join(', ')}
+- Frequent categories: ${userPatterns.frequentCategories.join(', ')}
+- Average activities per day: ${userPatterns.averageActivitiesPerDay}
+- Total activities: ${userPatterns.totalActivities}
+
+Current Context:
+- Time: ${timeOfDay} (${timeContext})
+- Day: ${dayOfWeek}
+- Recent activities: ${recentTitles.join(', ')}
+- Recent categories: ${recentCategories.join(', ')}
+
+Categories: household, childcare, finance, maintenance, cooking, shopping, transportation, emotional_support
+
+Respond with JSON:
+{
+  "predictions": [
+    {
+      "title": "Specific activity title",
+      "description": "Why this makes sense now",
+      "category": "category_name",
+      "points": 5-15,
+      "confidence": 60-95,
+      "reasoning": "Based on patterns, time, and context",
+      "predictedTime": "next 1-2 hours"
+    }
+  ]
+}
+
+Make predictions intelligent based on:
+1. Time-based patterns (cooking at dinner, cleaning on weekends)
+2. Avoiding recent duplicates
+3. Logical activity sequences
+4. User's established preferences`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI that predicts future activities based on user patterns, habits, and current context. Make realistic, personalized predictions."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return result.predictions || [];
+  } catch (error) {
+    console.error("Failed to generate activity predictions:", error);
+    return [];
+  }
+}

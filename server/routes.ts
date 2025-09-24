@@ -8,7 +8,7 @@ import {
   insertActivitySchema,
   insertAppreciationSchema
 } from "@shared/schema";
-import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage } from "./services/openai";
+import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions } from "./services/openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
@@ -335,6 +335,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to accept suggestion" });
+    }
+  });
+
+  // AI Pattern Analysis routes
+  app.get("/api/ai/patterns", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get user's activity history for pattern analysis
+      const activities = await storage.getActivitiesByUser(userId, 50); // Last 50 activities
+      
+      // Map activities to include category names
+      const activitiesWithCategories = await Promise.all(
+        activities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      const patterns = await analyzeUserPatterns(activitiesWithCategories);
+      
+      res.json({ patterns });
+    } catch (error) {
+      console.error("Failed to analyze user patterns:", error);
+      res.status(500).json({ message: "Failed to analyze activity patterns" });
+    }
+  });
+
+  // AI Activity Predictions routes  
+  app.get("/api/ai/predictions", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get recent activities and user patterns
+      const recentActivities = await storage.getActivitiesByUser(userId, 20);
+      const allActivities = await storage.getActivitiesByUser(userId, 50);
+      
+      // Map activities to include category names for analysis
+      const recentActivitiesWithCategories = await Promise.all(
+        recentActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      const allActivitiesWithCategories = await Promise.all(
+        allActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      const userPatterns = await analyzeUserPatterns(allActivitiesWithCategories);
+      
+      // Generate predictions based on patterns and current context
+      const predictions = await generateActivityPredictions(
+        recentActivitiesWithCategories,
+        userPatterns,
+        new Date()
+      );
+      
+      // Add category info to predictions
+      const predictionsWithCategories = await Promise.all(
+        predictions.map(async (prediction) => {
+          const category = await storage.getActivityCategoryByName(prediction.category);
+          return { ...prediction, categoryInfo: category };
+        })
+      );
+      
+      res.json({ predictions: predictionsWithCategories });
+    } catch (error) {
+      console.error("Failed to generate activity predictions:", error);
+      res.status(500).json({ message: "Failed to generate activity predictions" });
     }
   });
 
