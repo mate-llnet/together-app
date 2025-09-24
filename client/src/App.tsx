@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import AddActivity from "@/pages/add-activity";
 import Appreciation from "@/pages/appreciation";
 import Analytics from "@/pages/analytics";
+import CoupleInsights from "@/pages/couple-insights";
 import Settings from "@/pages/settings";
 import AppLayout from "@/components/layout/app-layout";
 
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/add-activity" component={AddActivity} />
       <Route path="/appreciation" component={Appreciation} />
       <Route path="/analytics" component={Analytics} />
+      <Route path="/couple-insights" component={CoupleInsights} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

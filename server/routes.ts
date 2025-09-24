@@ -11,13 +11,15 @@ import {
 import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders, analyzeRelationshipDynamics, generateCoupleRecommendations, generateRelationshipSummary } from "./services/openai";
 import { GamificationService } from "./services/gamification";
 import { seedAchievements } from "./services/seed-achievements";
+import { seedDefaultAdmin } from "./services/seed-admin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Ensure achievements are seeded on startup
+  // Ensure achievements and default admin are seeded on startup
   try {
     await seedAchievements();
+    await seedDefaultAdmin();
   } catch (error) {
-    console.error("Failed to seed achievements:", error);
+    console.error("Failed to seed startup data:", error);
   }
 
   // Auth routes
@@ -1218,7 +1220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!partner) {
         return res.status(404).json({ message: "Partner not found" });
       }
-      const user = await storage.getUserById(userId);
+      const user = await storage.getUser(userId);
 
       // Get activities for both partners (last 30 days for analysis)
       const thirtyDaysAgo = new Date();

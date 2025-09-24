@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, Plus, BarChart3, Settings, Menu, X, PlusCircle } from "lucide-react";
+import { Heart, Home, Plus, BarChart3, Settings, Menu, X, PlusCircle, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
@@ -19,6 +19,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: "Add Activity", href: "/add-activity", icon: PlusCircle },
     { name: "Appreciation", href: "/appreciation", icon: Heart },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
+    { name: "Couple Insights", href: "/couple-insights", icon: Users },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
