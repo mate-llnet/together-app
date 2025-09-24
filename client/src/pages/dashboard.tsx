@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/App";
+import { useAuth } from "@/hooks/use-auth";
 import StatCard from "@/components/dashboard/stat-card";
 import TodayActivities from "@/components/dashboard/today-activities";
 import AiSuggestions from "@/components/dashboard/ai-suggestions";

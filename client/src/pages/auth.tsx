@@ -6,16 +6,11 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Heart } from "lucide-react";
+import { UserWithCouple } from "@shared/schema";
 
 // Auth component for login and registration
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
 interface AuthProps {
-  onLogin: (user: User) => void;
+  onLogin: (user: UserWithCouple) => void;
 }
 
 export default function Auth({ onLogin }: AuthProps) {
