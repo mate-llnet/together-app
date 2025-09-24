@@ -6,6 +6,7 @@ import AiSuggestions from "@/components/dashboard/ai-suggestions";
 import PartnerAppreciation from "@/components/dashboard/partner-appreciation";
 import WeeklyProgress from "@/components/dashboard/weekly-progress";
 import { ActivityPredictions } from "@/components/dashboard/activity-predictions";
+import { SmartReminders } from "@/components/dashboard/smart-reminders";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Link } from "wouter";
@@ -119,6 +120,7 @@ export default function Dashboard() {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
+          <SmartReminders />
           <PartnerAppreciation />
           <WeeklyProgress />
         </div>

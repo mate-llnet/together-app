@@ -8,7 +8,7 @@ import {
   insertActivitySchema,
   insertAppreciationSchema
 } from "@shared/schema";
-import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions } from "./services/openai";
+import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders } from "./services/openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
@@ -431,6 +431,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to generate activity predictions:", error);
       res.status(500).json({ message: "Failed to generate activity predictions" });
+    }
+  });
+
+  // AI Smart Reminders routes
+  app.get("/api/ai/reminders", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get user's activity history for pattern analysis
+      const allActivities = await storage.getActivitiesByUser(userId, 100); // More data for better recurring task detection
+      const recentActivities = await storage.getActivitiesByUser(userId, 20);
+      
+      if (allActivities.length < 10) {
+        return res.json({ 
+          reminders: [],
+          recurringTasks: [],
+          message: "Add more activities to get smart reminders!"
+        });
+      }
+      
+      // Map activities to include category names for analysis
+      const allActivitiesWithCategories = await Promise.all(
+        allActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      const recentActivitiesWithCategories = await Promise.all(
+        recentActivities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      // Detect recurring tasks and user patterns
+      const recurringTasks = await detectRecurringTasks(allActivitiesWithCategories);
+      const userPatterns = await analyzeUserPatterns(allActivitiesWithCategories);
+      
+      // Generate smart reminders
+      const reminders = await generateSmartReminders(
+        recurringTasks,
+        recentActivitiesWithCategories,
+        userPatterns,
+        new Date()
+      );
+      
+      res.json({ 
+        reminders,
+        recurringTasks: recurringTasks.slice(0, 5), // Limit to top 5 for display
+        userPatterns
+      });
+    } catch (error) {
+      console.error("Failed to generate smart reminders:", error);
+      res.status(500).json({ message: "Failed to generate smart reminders" });
+    }
+  });
+
+  // Get recurring tasks separately
+  app.get("/api/ai/recurring-tasks", async (req, res) => {
+    try {
+      const userId = req.headers["x-user-id"] as string;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // Get user's activity history
+      const activities = await storage.getActivitiesByUser(userId, 100);
+      
+      if (activities.length < 10) {
+        return res.json({ 
+          recurringTasks: [],
+          message: "Need more activity history to detect recurring patterns"
+        });
+      }
+      
+      // Map activities to include category names
+      const activitiesWithCategories = await Promise.all(
+        activities.map(async (activity) => {
+          const category = await storage.getActivityCategory(activity.categoryId);
+          return {
+            title: activity.title,
+            category: category?.name || 'household',
+            points: activity.points,
+            completedAt: activity.completedAt
+          };
+        })
+      );
+      
+      const recurringTasks = await detectRecurringTasks(activitiesWithCategories);
+      
+      res.json({ recurringTasks });
+    } catch (error) {
+      console.error("Failed to detect recurring tasks:", error);
+      res.status(500).json({ message: "Failed to detect recurring tasks" });
     }
   });
 

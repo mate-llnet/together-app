@@ -229,6 +229,200 @@ Analyze when they're most active, which categories they prefer, and their consis
   }
 }
 
+export interface RecurringTask {
+  title: string;
+  category: string;
+  frequency: string; // daily, weekly, biweekly, monthly
+  lastCompleted: Date;
+  averageGap: number; // days between completions
+  confidence: number;
+  nextDueDate: Date;
+}
+
+export interface SmartReminder {
+  id: string;
+  title: string;
+  message: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  type: 'overdue' | 'upcoming' | 'balance' | 'streak';
+  reminderTime: string;
+  reasoning: string;
+  actionSuggested: string;
+}
+
+export async function detectRecurringTasks(activities: Array<{
+  title: string;
+  category: string;
+  points: number;
+  completedAt: Date;
+}>): Promise<RecurringTask[]> {
+  if (activities.length < 10) {
+    return []; // Need sufficient data to detect patterns
+  }
+
+  try {
+    // Group activities by similar titles and categories
+    const activitySummary = activities.map(a => ({
+      title: a.title.toLowerCase().trim(),
+      category: a.category,
+      date: a.completedAt.toISOString().split('T')[0], // YYYY-MM-DD format
+      points: a.points
+    }));
+
+    const prompt = `Analyze these activities to identify recurring tasks:
+
+Activities (last ${activities.length} entries):
+${activitySummary.map(a => `- ${a.title} (${a.category}) on ${a.date}`).join('\n')}
+
+Identify patterns where similar activities occur regularly. Look for:
+1. Exact title matches or very similar activities
+2. Regular timing intervals (daily, weekly, biweekly, monthly)
+3. Category-based patterns (e.g., weekly grocery shopping)
+
+Respond with JSON:
+{
+  "recurringTasks": [
+    {
+      "title": "Activity name",
+      "category": "category_name",
+      "frequency": "weekly",
+      "lastCompleted": "2025-01-15",
+      "averageGap": 7,
+      "confidence": 85,
+      "nextDueDate": "2025-01-22"
+    }
+  ]
+}
+
+Only include tasks with high confidence (80%+) and clear patterns.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI that detects recurring task patterns from activity history. Be precise and only identify clear, repeated patterns."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return (result.recurringTasks || []).map((task: any) => ({
+      ...task,
+      lastCompleted: new Date(task.lastCompleted),
+      nextDueDate: new Date(task.nextDueDate)
+    }));
+  } catch (error) {
+    console.error("Failed to detect recurring tasks:", error);
+    return [];
+  }
+}
+
+export async function generateSmartReminders(
+  recurringTasks: RecurringTask[],
+  recentActivities: Array<{
+    title: string;
+    category: string;
+    points: number;
+    completedAt: Date;
+  }>,
+  userPatterns: UserPatterns,
+  currentTime: Date
+): Promise<SmartReminder[]> {
+  try {
+    const now = currentTime;
+    const timeOfDay = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+    
+    let timeContext = "morning";
+    const hour = now.getHours();
+    if (hour >= 12 && hour < 17) timeContext = "afternoon";
+    else if (hour >= 17) timeContext = "evening";
+
+    // Analyze recent activity to identify gaps and opportunities
+    const recentCategories = recentActivities.slice(0, 7).map(a => a.category);
+    const recentTitles = recentActivities.slice(0, 5).map(a => a.title);
+    
+    const overdueTasks = recurringTasks.filter(task => {
+      const daysSinceLastCompleted = Math.floor((now.getTime() - task.lastCompleted.getTime()) / (1000 * 60 * 60 * 24));
+      return daysSinceLastCompleted > task.averageGap + 1;
+    });
+
+    const upcomingTasks = recurringTasks.filter(task => {
+      const daysSinceLastCompleted = Math.floor((now.getTime() - task.lastCompleted.getTime()) / (1000 * 60 * 60 * 24));
+      return daysSinceLastCompleted >= task.averageGap - 1 && daysSinceLastCompleted <= task.averageGap + 1;
+    });
+
+    const prompt = `Generate gentle, encouraging reminders based on user patterns and task status:
+
+Current Context:
+- Time: ${timeOfDay} (${timeContext})
+- Day: ${dayOfWeek}
+- Recent activities: ${recentTitles.join(', ')}
+- Recent categories: ${recentCategories.join(', ')}
+
+User Patterns:
+- Common active times: ${userPatterns.commonTimes.join(', ')}
+- Frequent categories: ${userPatterns.frequentCategories.join(', ')}
+- Average activities per day: ${userPatterns.averageActivitiesPerDay}
+
+Overdue Tasks:
+${overdueTasks.map(t => `- ${t.title} (${t.category}) - last done ${Math.floor((now.getTime() - t.lastCompleted.getTime()) / (1000 * 60 * 60 * 24))} days ago`).join('\n')}
+
+Upcoming Tasks:
+${upcomingTasks.map(t => `- ${t.title} (${t.category}) - usually done every ${t.averageGap} days`).join('\n')}
+
+Generate 2-4 gentle, contextual reminders. Make them encouraging, not pushy.
+
+Respond with JSON:
+{
+  "reminders": [
+    {
+      "id": "unique-id",
+      "title": "Brief reminder title",
+      "message": "Gentle, encouraging message",
+      "category": "category_name",
+      "priority": "medium",
+      "type": "overdue",
+      "reminderTime": "Good time to do this",
+      "reasoning": "Why this reminder makes sense now",
+      "actionSuggested": "Specific action user can take"
+    }
+  ]
+}
+
+Types: overdue, upcoming, balance, streak
+Priorities: low, medium, high`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are a caring AI assistant that helps couples stay on track with their activities. Generate gentle, encouraging reminders that motivate rather than pressure."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || '{}');
+    return result.reminders || [];
+  } catch (error) {
+    console.error("Failed to generate smart reminders:", error);
+    return [];
+  }
+}
+
 export async function generateActivityPredictions(
   recentActivities: Array<{
     title: string;
