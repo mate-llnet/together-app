@@ -109,6 +109,42 @@ export const milestones = pgTable("milestones", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Site content management tables
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  siteName: text("site_name").notNull().default("AppreciateMate"),
+  tagline: text("tagline").notNull().default("Appreciate Life Together"),
+  description: text("description").notNull().default("A relationship appreciation app that helps couples track and appreciate each other's daily contributions."),
+  logoUrl: text("logo_url"),
+  contactEmail: text("contact_email").notNull().default("hello@appreciatemate.com"),
+  contactPhone: text("contact_phone"),
+  contactAddress: text("contact_address"),
+  socialLinks: text("social_links"), // JSON string for social media links
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const sitePages = pgTable("site_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // e.g., "about", "privacy", "terms"
+  title: text("title").notNull(),
+  content: text("content").notNull(), // HTML/Markdown content
+  isPublished: boolean("is_published").notNull().default(true),
+  metaDescription: text("meta_description"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject"),
+  message: text("message").notNull(),
+  status: text("status").notNull().default("new"), // new, read, replied
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -158,6 +194,23 @@ export const insertMilestoneSchema = createInsertSchema(milestones).omit({
   createdAt: true,
 });
 
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSitePageSchema = createInsertSchema(sitePages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -178,6 +231,12 @@ export type UserStats = typeof userStats.$inferSelect;
 export type InsertUserStats = z.infer<typeof insertUserStatsSchema>;
 export type Milestone = typeof milestones.$inferSelect;
 export type InsertMilestone = z.infer<typeof insertMilestoneSchema>;
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+export type SitePage = typeof sitePages.$inferSelect;
+export type InsertSitePage = z.infer<typeof insertSitePageSchema>;
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 
 // Extended types for frontend use
 export interface ActivityWithCategory extends Activity {

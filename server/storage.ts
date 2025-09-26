@@ -18,6 +18,12 @@ import {
   type InsertUserStats,
   type Milestone,
   type InsertMilestone,
+  type SiteSettings,
+  type InsertSiteSettings,
+  type SitePage,
+  type InsertSitePage,
+  type ContactSubmission,
+  type InsertContactSubmission,
   users,
   couples,
   activityCategories,
@@ -27,7 +33,10 @@ import {
   achievements,
   userAchievements,
   userStats,
-  milestones
+  milestones,
+  siteSettings,
+  sitePages,
+  contactSubmissions
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -93,6 +102,22 @@ export interface IStorage {
   createMilestone(milestone: InsertMilestone & { userId: string }): Promise<Milestone>;
   updateMilestone(id: string, updates: Partial<Milestone>): Promise<Milestone | undefined>;
   completeMilestone(id: string): Promise<Milestone | undefined>;
+
+  // Site Content Management
+  getSiteSettings(): Promise<SiteSettings | undefined>;
+  updateSiteSettings(updates: Partial<InsertSiteSettings>): Promise<SiteSettings>;
+  
+  // Site Pages
+  getSitePages(): Promise<SitePage[]>;
+  getSitePage(slug: string): Promise<SitePage | undefined>;
+  createSitePage(page: InsertSitePage): Promise<SitePage>;
+  updateSitePage(slug: string, updates: Partial<InsertSitePage>): Promise<SitePage | undefined>;
+  deleteSitePage(slug: string): Promise<boolean>;
+  
+  // Contact Submissions
+  getContactSubmissions(): Promise<ContactSubmission[]>;
+  createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission>;
+  updateContactSubmission(id: string, updates: Partial<ContactSubmission>): Promise<ContactSubmission | undefined>;
 }
 
 // NOTE: MemStorage is incomplete - use DrizzleStorage instead
@@ -575,6 +600,84 @@ export class DrizzleStorage implements IStorage {
     const result = await db.update(milestones)
       .set({ isCompleted: true, completedAt: new Date() })
       .where(eq(milestones.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Site Content Management
+  async getSiteSettings(): Promise<SiteSettings | undefined> {
+    const result = await db.select().from(siteSettings).limit(1);
+    return result[0];
+  }
+
+  async updateSiteSettings(updates: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    // First check if settings exist
+    const existing = await this.getSiteSettings();
+    
+    if (existing) {
+      const result = await db.update(siteSettings)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(siteSettings.id, existing.id))
+        .returning();
+      return result[0];
+    } else {
+      // Create new settings if none exist
+      const result = await db.insert(siteSettings).values({
+        ...updates,
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      }).returning();
+      return result[0];
+    }
+  }
+
+  // Site Pages
+  async getSitePages(): Promise<SitePage[]> {
+    return await db.select().from(sitePages).orderBy(sitePages.slug);
+  }
+
+  async getSitePage(slug: string): Promise<SitePage | undefined> {
+    const result = await db.select().from(sitePages).where(eq(sitePages.slug, slug));
+    return result[0];
+  }
+
+  async createSitePage(page: InsertSitePage): Promise<SitePage> {
+    const result = await db.insert(sitePages).values({
+      ...page,
+      updatedAt: new Date(),
+      createdAt: new Date(),
+    }).returning();
+    return result[0];
+  }
+
+  async updateSitePage(slug: string, updates: Partial<InsertSitePage>): Promise<SitePage | undefined> {
+    const result = await db.update(sitePages)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(sitePages.slug, slug))
+      .returning();
+    return result[0];
+  }
+
+  async deleteSitePage(slug: string): Promise<boolean> {
+    const result = await db.delete(sitePages).where(eq(sitePages.slug, slug));
+    return result.rowCount > 0;
+  }
+
+  // Contact Submissions
+  async getContactSubmissions(): Promise<ContactSubmission[]> {
+    return await db.select().from(contactSubmissions)
+      .orderBy(desc(contactSubmissions.createdAt));
+  }
+
+  async createContactSubmission(submission: InsertContactSubmission): Promise<ContactSubmission> {
+    const result = await db.insert(contactSubmissions).values(submission).returning();
+    return result[0];
+  }
+
+  async updateContactSubmission(id: string, updates: Partial<ContactSubmission>): Promise<ContactSubmission | undefined> {
+    const result = await db.update(contactSubmissions)
+      .set(updates)
+      .where(eq(contactSubmissions.id, id))
       .returning();
     return result[0];
   }
