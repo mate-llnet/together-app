@@ -556,19 +556,19 @@ setup_database() {
 configure_pm2() {
     log "Configuring PM2 process manager..."
     
-    # Create PM2 ecosystem file  
-    # NOTE: This runs the development server for simplicity
-    # For production, consider creating a proper build process
-    cat > /tmp/ecosystem.config.cjs << 'EOF'
+    # Check if ecosystem.config.cjs exists in repository, create if missing
+    if [[ ! -f "$APP_DIR/ecosystem.config.cjs" ]]; then
+        log "Creating production PM2 configuration..."
+        sudo -u "$APP_USER" tee "$APP_DIR/ecosystem.config.cjs" > /dev/null << 'EOF'
 module.exports = {
   apps: [{
     name: 'together',
     script: 'npm',
-    args: 'run dev',
+    args: 'start',
     cwd: '/opt/together',
     env: {
-      NODE_ENV: 'development',
-      PORT: 3000
+      NODE_ENV: 'production',
+      PORT: 5000
     },
     instances: 1,
     autorestart: true,
@@ -581,10 +581,9 @@ module.exports = {
   }]
 };
 EOF
-    
-    # Move PM2 config and set permissions
-    sudo mv /tmp/ecosystem.config.cjs "$APP_DIR/"
-    sudo chown "$APP_USER:$APP_USER" "$APP_DIR/ecosystem.config.cjs"
+    else
+        log "Using existing ecosystem.config.cjs from repository"
+    fi
     
     # Create log directory
     sudo mkdir -p /var/log/together

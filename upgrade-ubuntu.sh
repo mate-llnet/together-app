@@ -98,19 +98,23 @@ check_git_repo() {
 
 # Get current git commit
 get_current_commit() {
-    cd "$APP_DIR"
-    git rev-parse HEAD
+    sudo -u "$APP_USER" bash -c "cd $APP_DIR && git rev-parse HEAD"
 }
 
 # Check for updates
 check_for_updates() {
-    cd "$APP_DIR"
-    
     log "Fetching latest changes from remote..."
-    sudo -u "$APP_USER" git fetch origin
     
-    local current_commit=$(git rev-parse HEAD)
-    local remote_commit=$(git rev-parse origin/main)
+    # All git operations as app user
+    local git_info=$(sudo -u "$APP_USER" bash -c "
+        cd $APP_DIR
+        git fetch origin
+        echo \"current:\$(git rev-parse HEAD)\"
+        echo \"remote:\$(git rev-parse origin/main)\"
+    ")
+    
+    local current_commit=$(echo "$git_info" | grep "current:" | cut -d: -f2)
+    local remote_commit=$(echo "$git_info" | grep "remote:" | cut -d: -f2)
     
     if [[ "$current_commit" == "$remote_commit" ]]; then
         if [[ "$FORCE_UPDATE" == false ]]; then
@@ -186,16 +190,26 @@ stop_application() {
 # Pull latest changes
 pull_changes() {
     log "Pulling latest changes..."
-    cd "$APP_DIR"
     
-    # Stash any local changes
-    if ! sudo -u "$APP_USER" git diff --quiet; then
-        warn "Local changes detected, stashing them..."
-        sudo -u "$APP_USER" git stash push -m "Auto-stash before upgrade $(date)"
+    # Handle potential ecosystem.config.cjs conflicts
+    if [[ -f "$APP_DIR/ecosystem.config.cjs" ]] && ! sudo -u "$APP_USER" bash -c "cd $APP_DIR && git ls-files --error-unmatch ecosystem.config.cjs" >/dev/null 2>&1; then
+        warn "Moving local ecosystem.config.cjs to avoid conflicts..."
+        sudo -u "$APP_USER" mv "$APP_DIR/ecosystem.config.cjs" "$APP_DIR/ecosystem.local.cjs"
     fi
     
-    # Pull latest changes
-    sudo -u "$APP_USER" git pull origin main
+    # All git operations as app user
+    sudo -u "$APP_USER" bash -c "
+        cd $APP_DIR
+        
+        # Stash any local changes
+        if ! git diff --quiet; then
+            echo 'Local changes detected, stashing them...'
+            git stash push -m 'Auto-stash before upgrade $(date)'
+        fi
+        
+        # Pull latest changes
+        git pull origin main
+    "
     
     log "Successfully pulled latest changes"
 }
@@ -203,12 +217,11 @@ pull_changes() {
 # Install dependencies
 install_dependencies() {
     log "Installing/updating dependencies..."
-    cd "$APP_DIR"
     
     # Check if package.json or package-lock.json changed
-    if sudo -u "$APP_USER" git diff --name-only HEAD~1 HEAD | grep -E "package.*\.json"; then
+    if sudo -u "$APP_USER" bash -c "cd $APP_DIR && git diff --name-only HEAD~1 HEAD" | grep -E "package.*\.json"; then
         log "Package files changed, running npm install..."
-        sudo -u "$APP_USER" npm install
+        sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm install"
     else
         log "No package changes detected, skipping npm install"
     fi
@@ -217,13 +230,16 @@ install_dependencies() {
 # Build application
 build_application() {
     log "Building application..."
-    cd "$APP_DIR"
     
-    # Clean previous build
-    sudo -u "$APP_USER" rm -rf dist/
-    
-    # Build frontend and backend
-    sudo -u "$APP_USER" npm run build
+    sudo -u "$APP_USER" bash -c "
+        cd $APP_DIR
+        
+        # Clean previous build
+        rm -rf dist/
+        
+        # Build frontend and backend
+        npm run build
+    "
     
     log "Build completed successfully"
 }
@@ -248,49 +264,39 @@ run_migrations() {
 # Update PM2 configuration
 update_pm2_config() {
     log "Updating PM2 configuration..."
-    cd "$APP_DIR"
     
-    # Create/update ecosystem.config.cjs if it doesn't exist or changed
-    if [[ ! -f "ecosystem.config.cjs" ]] || sudo -u "$APP_USER" git diff --name-only HEAD~1 HEAD | grep -q "ecosystem.config.cjs"; then
-        log "Creating/updating PM2 configuration..."
-        sudo -u "$APP_USER" tee ecosystem.config.cjs > /dev/null << 'EOF'
-module.exports = {
-  apps: [{
-    name: 'together',
-    script: 'npm',
-    args: 'start',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 5000
-    },
-    cwd: '/opt/together',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    error_file: './logs/err.log',
-    out_file: './logs/out.log',
-    log_file: './logs/combined.log',
-    time: true
-  }]
-};
-EOF
+    # Use ecosystem.config.cjs from repository if available, otherwise use local
+    local pm2_config="ecosystem.config.cjs"
+    if [[ -f "$APP_DIR/ecosystem.local.cjs" ]] && [[ ! -f "$APP_DIR/ecosystem.config.cjs" ]]; then
+        pm2_config="ecosystem.local.cjs"
+        log "Using local PM2 configuration: $pm2_config"
+    else
+        log "Using repository PM2 configuration: $pm2_config"
     fi
     
     # Create logs directory
-    sudo -u "$APP_USER" mkdir -p logs
+    sudo -u "$APP_USER" mkdir -p "$APP_DIR/logs"
+    
+    # Store config name for start function
+    echo "$pm2_config" > /tmp/pm2_config_name
 }
 
 # Start application
 start_application() {
     log "Starting Together application..."
-    cd "$APP_DIR"
     
-    # Start with PM2
-    sudo -u "$APP_USER" pm2 start ecosystem.config.cjs
+    # Get PM2 config name
+    local pm2_config=$(cat /tmp/pm2_config_name 2>/dev/null || echo "ecosystem.config.cjs")
     
-    # Save PM2 configuration
-    sudo -u "$APP_USER" pm2 save
+    sudo -u "$APP_USER" bash -c "
+        cd $APP_DIR
+        
+        # Start with PM2
+        pm2 start $pm2_config
+        
+        # Save PM2 configuration
+        pm2 save
+    "
     
     log "Application started successfully"
 }
