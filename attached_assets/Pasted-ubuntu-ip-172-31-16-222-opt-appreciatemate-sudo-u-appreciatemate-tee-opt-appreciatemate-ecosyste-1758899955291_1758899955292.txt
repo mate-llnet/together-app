@@ -1,0 +1,47 @@
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate tee /opt/appreciatemate/ecosystem.config.cjs > /dev/null << 'EOF'
+module.exports = {
+  apps: [{
+    name: 'appreciatemate',
+    script: 'npm',
+    args: 'start',
+    cwd: '/opt/appreciatemate',
+    env_file: '/opt/appreciatemate/.env',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 5000
+    },
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    log_date_format: 'YYYY-MM-DD HH:mm Z',
+    error_file: '/var/log/appreciatemate/error.log',
+    out_file: '/var/log/appreciatemate/access.log',
+    log_file: '/var/log/appreciatemate/combined.log'
+  }]
+};
+EOF
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo nano .env
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 delete together
+[PM2] Applying action deleteProcessId on app [together](ids: [ 0 ])
+[PM2] [together](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 start ecosystem.config.cjs+
+[PM2][ERROR] File ecosystem.config.cjs+ not found
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 start ecosystem.config.cjs
+[PM2][WARN] Applications appreciatemate not running, starting...
+[PM2][WARN] Folder does not exist: /var/log/appreciatemate
+[PM2] Creating folder: /var/log/appreciatemate
+[PM2][ERROR] Could not create folder: /var/log/appreciatemate
+[PM2][ERROR] Error: Could not create folder
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 delete appreciatemate
+[PM2][ERROR] Process or Namespace appreciatemate not found
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate bash -c "source /opt/appreciatemate/.env && pm2 start ecosystem.config.cjs"
+[PM2][WARN] Applications appreciatemate not running, starting...
+[PM2][WARN] Folder does not exist: /var/log/appreciatemate
+[PM2] Creating folder: /var/log/appreciatemate
+[PM2][ERROR] Could not create folder: /var/log/appreciatemate
+[PM2][ERROR] Error: Could not create folder
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$
