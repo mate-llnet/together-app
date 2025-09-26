@@ -577,6 +577,67 @@ module.exports = {
 EOF
     else
         log "Using existing ecosystem.config.cjs from repository"
+        
+        # Validate and patch existing ecosystem config for critical settings
+        log "Validating ecosystem.config.cjs configuration..."
+        
+        # Backup original
+        sudo -u "$APP_USER" cp "$APP_DIR/ecosystem.config.cjs" "$APP_DIR/ecosystem.config.cjs.backup"
+        
+        # Check and fix critical configurations
+        ECOSYSTEM_FILE="$APP_DIR/ecosystem.config.cjs"
+        NEEDS_UPDATE=false
+        
+        # Check if cwd is set correctly
+        if ! sudo -u "$APP_USER" grep -q "cwd.*$APP_DIR" "$ECOSYSTEM_FILE"; then
+            warn "Ecosystem config has incorrect cwd path, will be updated"
+            NEEDS_UPDATE=true
+        fi
+        
+        # Check if env_file is configured
+        if ! sudo -u "$APP_USER" grep -q "env_file" "$ECOSYSTEM_FILE"; then
+            warn "Ecosystem config missing env_file configuration, will be updated"
+            NEEDS_UPDATE=true
+        fi
+        
+        # Check if name matches APP_NAME
+        if ! sudo -u "$APP_USER" grep -q "name.*$APP_NAME" "$ECOSYSTEM_FILE"; then
+            warn "Ecosystem config has incorrect app name, will be updated"
+            NEEDS_UPDATE=true
+        fi
+        
+        # If critical issues found, regenerate with backup
+        if [ "$NEEDS_UPDATE" = true ]; then
+            warn "Critical issues found in ecosystem.config.cjs, regenerating with corrected configuration"
+            log "Original backed up as ecosystem.config.cjs.backup"
+            
+            sudo -u "$APP_USER" tee "$APP_DIR/ecosystem.config.cjs" > /dev/null << EOF
+module.exports = {
+  apps: [{
+    name: '${APP_NAME}',
+    script: 'npm',
+    args: 'start',
+    cwd: '${APP_DIR}',
+    env_file: '${APP_DIR}/.env',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 5000
+    },
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    log_date_format: 'YYYY-MM-DD HH:mm Z',
+    error_file: '/var/log/${APP_NAME}/error.log',
+    out_file: '/var/log/${APP_NAME}/access.log',
+    log_file: '/var/log/${APP_NAME}/combined.log'
+  }]
+};
+EOF
+            log "Ecosystem configuration updated successfully"
+        else
+            log "Ecosystem configuration is valid"
+        fi
     fi
     
     # Create log directory
@@ -594,7 +655,7 @@ EOF
     notifempty
     create 644 $APP_USER $APP_USER
     postrotate
-        pm2 reloadLogs
+        su - $APP_USER -c 'pm2 reloadLogs' || true
     endscript
 }
 EOF
@@ -643,7 +704,7 @@ setup_nginx() {
     prompt_user "Domain name for the application (e.g., together.example.com)" DOMAIN_NAME
     
     # Create Nginx configuration
-    cat > /tmp/together-nginx << EOF
+    cat > "/tmp/$APP_NAME-nginx" << EOF
 server {
     listen 80;
     server_name ${DOMAIN_NAME};
@@ -699,8 +760,8 @@ server {
 EOF
     
     # Install Nginx config
-    sudo mv /tmp/together-nginx "/etc/nginx/sites-available/together"
-    sudo ln -sf "/etc/nginx/sites-available/together" "/etc/nginx/sites-enabled/together"
+    sudo mv "/tmp/$APP_NAME-nginx" "/etc/nginx/sites-available/$APP_NAME"
+    sudo ln -sf "/etc/nginx/sites-available/$APP_NAME" "/etc/nginx/sites-enabled/$APP_NAME"
     
     # Test Nginx configuration
     if sudo nginx -t; then
@@ -718,8 +779,8 @@ EOF
         sudo rm -f /etc/nginx/sites-enabled/default
         
         # Ensure proper file permissions
-        sudo chown root:root "/etc/nginx/sites-available/together"
-        sudo chmod 644 "/etc/nginx/sites-available/together"
+        sudo chown root:root "/etc/nginx/sites-available/$APP_NAME"
+        sudo chmod 644 "/etc/nginx/sites-available/$APP_NAME"
         
         # Test again
         if sudo nginx -t; then
@@ -736,18 +797,18 @@ EOF
 
 # Start application
 start_application() {
-    log "Starting Together application..."
+    log "Starting $APP_NAME application..."
     
     # Setup PM2 startup for system service
     sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$APP_USER" --hp "$APP_DIR" || true
     
     # Start application with PM2 as app user (stop existing first if running)
-    if sudo -u "$APP_USER" pm2 list | grep -q "together"; then
-        log "Stopping existing Together application..."
-        sudo -u "$APP_USER" pm2 delete together &>/dev/null || true
+    if sudo -u "$APP_USER" pm2 list | grep -q "$APP_NAME"; then
+        log "Stopping existing $APP_NAME application..."
+        sudo -u "$APP_USER" pm2 delete "$APP_NAME" &>/dev/null || true
     fi
     
-    log "Starting Together application with PM2..."
+    log "Starting $APP_NAME application with PM2..."
     sudo -u "$APP_USER" bash -c "cd $APP_DIR && pm2 start ecosystem.config.cjs"
     
     # Save PM2 process list for startup
@@ -757,19 +818,19 @@ start_application() {
     sleep 10
     
     # Check if application is running
-    if sudo -u "$APP_USER" pm2 list | grep -q "together.*online"; then
+    if sudo -u "$APP_USER" pm2 list | grep -q "$APP_NAME.*online"; then
         log "Application started successfully!"
         
         # Test health endpoint
-        if curl -f -s http://localhost:3000/api/health > /dev/null; then
+        if curl -f -s http://localhost:5000/api/health > /dev/null; then
             log "Health check passed!"
         else
             warn "Health check failed, but application appears to be starting"
-            info "You can test manually with: curl http://localhost:3000/api/health"
+            info "You can test manually with: curl http://localhost:5000/api/health"
         fi
     else
-        error "Application failed to start. Check logs with: sudo -u $APP_USER pm2 logs together"
-        warn "You can also try: sudo -u $APP_USER pm2 restart together"
+        error "Application failed to start. Check logs with: sudo -u $APP_USER pm2 logs $APP_NAME"
+        warn "You can also try: sudo -u $APP_USER pm2 restart $APP_NAME"
         # Don't exit - let user debug
     fi
 }
