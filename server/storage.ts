@@ -30,19 +30,12 @@ import {
   milestones
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neonConfig, Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, and, desc, gte, lt } from "drizzle-orm";
-import ws from "ws";
+import postgres from "postgres";
 
-// Configure for server-side usage
-neonConfig.fetchConnectionCache = true;
-neonConfig.webSocketConstructor = ws;
-
-const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL
-});
-const db = drizzle(pool);
+const sql = postgres(process.env.DATABASE_URL!);
+const db = drizzle(sql);
 
 export interface IStorage {
   // Users

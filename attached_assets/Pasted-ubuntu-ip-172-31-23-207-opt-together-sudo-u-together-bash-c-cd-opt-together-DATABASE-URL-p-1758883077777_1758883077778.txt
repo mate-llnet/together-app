@@ -1,0 +1,162 @@
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together bash -c "cd /opt/together && DATABASE_URL='postgresql://3together_user061619:8c30o5vyY3OlsEAlcFUval4Ea@mtlsql.llnet-inc.ca:5432/together_db061619' PGHOST='mtlsql.llnet-inc.ca' PGPORT='5432' PGUSER='3together_user061619' PGPASSWORD='8c30o5vyY3OlsEAlcFUval4Ea' PGDATABASE='together_db061619' NODE_ENV=production node dist/index.js"
+The `fetchConnectionCache` option is deprecated (now always `true`)
+🌟 Seeding achievements...
+❌ Failed to seed achievements: ErrorEvent {
+  [Symbol(kTarget)]: WebSocket {
+    _events: [Object: null prototype] {
+      error: [Function],
+      message: [Function],
+      close: [Function],
+      open: [Function]
+    },
+    _eventsCount: 4,
+    _maxListeners: undefined,
+    _binaryType: 'arraybuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: <Buffer >,
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _url: 'wss://mtlsql.llnet-inc.ca/v2',
+    _req: null,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kType)]: 'error',
+  [Symbol(kError)]: Error: connect ECONNREFUSED 35.182.209.169:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '35.182.209.169',
+    port: 443
+  },
+  [Symbol(kMessage)]: 'connect ECONNREFUSED 35.182.209.169:443'
+}
+Failed to seed startup data: ErrorEvent {
+  [Symbol(kTarget)]: WebSocket {
+    _events: [Object: null prototype] {
+      error: [Function],
+      message: [Function],
+      close: [Function],
+      open: [Function]
+    },
+    _eventsCount: 4,
+    _maxListeners: undefined,
+    _binaryType: 'arraybuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: <Buffer >,
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _url: 'wss://mtlsql.llnet-inc.ca/v2',
+    _req: null,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kType)]: 'error',
+  [Symbol(kError)]: Error: connect ECONNREFUSED 35.182.209.169:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '35.182.209.169',
+    port: 443
+  },
+  [Symbol(kMessage)]: 'connect ECONNREFUSED 35.182.209.169:443'
+}
+10:30:28 AM [express] serving on port 5000
+
+file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1345
+o?t(o):n(u)},"cb"),s=new r(function(o,u){n=o,t=u}).catch(o=>{throw Error.captureStackTrace(
+                                                                         ^
+ErrorEvent {
+  [Symbol(kTarget)]: WebSocket {
+    _events: [Object: null prototype] {
+      error: [Function: onError] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function (anonymous)]
+      },
+      message: [Function: onMessage] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function (anonymous)]
+      },
+      close: [Function: onClose] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function (anonymous)]
+      },
+      open: [Function: onOpen] {
+        [Symbol(kIsForOnEventAttribute)]: false,
+        [Symbol(kListener)]: [Function: handleWebSocketOpen]
+      }
+    },
+    _eventsCount: 4,
+    _maxListeners: undefined,
+    _binaryType: 'arraybuffer',
+    _closeCode: 1006,
+    _closeFrameReceived: false,
+    _closeFrameSent: false,
+    _closeMessage: Buffer(0) [Uint8Array] [],
+    _closeTimer: null,
+    _errorEmitted: true,
+    _extensions: {},
+    _paused: false,
+    _protocol: '',
+    _readyState: 3,
+    _receiver: null,
+    _sender: null,
+    _socket: null,
+    _bufferedAmount: 0,
+    _isServer: false,
+    _redirects: 0,
+    _autoPong: true,
+    _url: 'wss://mtlsql.llnet-inc.ca/v2',
+    _req: null,
+    [Symbol(shapeMode)]: false,
+    [Symbol(kCapture)]: false
+  },
+  [Symbol(kType)]: 'error',
+  [Symbol(kError)]: Error: connect ECONNREFUSED 35.182.209.169:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '35.182.209.169',
+    port: 443
+  },
+  [Symbol(kMessage)]: 'connect ECONNREFUSED 35.182.209.169:443'
+}
+
+Node.js v20.19.5
+ubuntu@ip-172-31-23-207:/opt/together$ psql -h mtlsql.llnet-inc.ca -U 3together_user061619 -d together_db061619
+psql (16.10 (Ubuntu 16.10-0ubuntu0.24.04.1))
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, compression: off)
+Type "help" for help.
+
+together_db061619=> ^C
+together_db061619=> \q
+ubuntu@ip-172-31-23-207:/opt/together$
