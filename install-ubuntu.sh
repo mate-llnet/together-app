@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Together App - Ubuntu Server Installation Script
-# This script installs the Together relationship app on a fresh Ubuntu server
+# AppreciateMate v1.1.0-Beta - Ubuntu Server Installation Script
+# This script installs the AppreciateMate relationship app on a fresh Ubuntu server
 # Supports both local and remote PostgreSQL installations
 
 set -e  # Exit on any error
@@ -31,9 +31,9 @@ info() {
 }
 
 # Configuration variables
-APP_NAME="together"
-APP_USER="together"
-APP_DIR="/opt/together"
+APP_NAME="appreciatemate"
+APP_USER="appreciatemate"
+APP_DIR="/opt/appreciatemate"
 NODE_VERSION="20"
 POSTGRES_VERSION="" # Will be detected dynamically
 USE_DATABASE="false"
@@ -80,7 +80,7 @@ generate_password() {
 banner() {
     echo -e "${BLUE}"
     echo "╔══════════════════════════════════════════════════════════════════╗"
-    echo "║                        Together App                              ║"
+    echo "║                     AppreciateMate v1.1.0-Beta                  ║"
     echo "║                   Ubuntu Server Installer                       ║"
     echo "║                                                                  ║"
     echo "║  A relationship appreciation app that helps couples track        ║"
@@ -136,8 +136,8 @@ configure_database() {
 configure_local_postgres() {
     log "Configuring local PostgreSQL installation..."
     
-    DB_NAME="together_db"
-    DB_USER="together_user"
+    DB_NAME="appreciatemate_db"
+    DB_USER="appreciatemate_user"
     DB_PASSWORD=$(generate_password)
     DB_HOST="localhost"
     DB_PORT="5432"
@@ -147,7 +147,7 @@ configure_local_postgres() {
     
     echo
     warn "A secure database password has been generated and will be saved to the configuration file."
-    info "You can view it later in /opt/together/.env if needed."
+    info "You can view it later in /opt/appreciatemate/.env if needed."
     echo
     read -p "Press Enter to continue or Ctrl+C to abort..."
 }
@@ -217,8 +217,8 @@ configure_new_remote_db() {
     fi
     
     # Generate database and user details
-    DB_NAME="together_db"
-    DB_USER="together_user"
+    DB_NAME="appreciatemate_db"
+    DB_USER="appreciatemate_user"
     DB_PASSWORD=$(generate_password)
     
     prompt_user "Database name" DB_NAME "$DB_NAME"
