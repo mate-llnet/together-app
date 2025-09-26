@@ -77,7 +77,7 @@ sudo chmod 600 /opt/appreciatemate/.env
 
 #### Stop Everything
 ```bash
-sudo -u together pm2 delete together
+sudo -u appreciatemate pm2 delete appreciatemate
 sudo systemctl stop nginx
 sudo systemctl stop postgresql  # if local
 ```
@@ -86,7 +86,7 @@ sudo systemctl stop postgresql  # if local
 ```bash
 sudo systemctl start postgresql  # if local
 sudo systemctl start nginx
-cd /opt/appreciatemate && sudo -u together pm2 start ecosystem.config.js
+cd /opt/appreciatemate && sudo -u appreciatemate pm2 start ecosystem.config.cjs
 ```
 
 #### View All Logs
@@ -107,10 +107,10 @@ sudo journalctl -f
 ### Quick Health Check
 ```bash
 #!/bin/bash
-echo "=== Together App Health Check ==="
+echo "=== AppreciateMate Health Check ==="
 
 echo -n "App Status: "
-if sudo -u together pm2 list | grep -q "together.*online"; then
+if sudo -u appreciatemate pm2 list | grep -q "appreciatemate.*online"; then
     echo "✅ Running"
 else
     echo "❌ Not Running"
@@ -131,14 +131,14 @@ else
 fi
 
 echo -n "HTTP Response: "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|404"; then
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 | grep -q "200\|404"; then
     echo "✅ Responding"
 else
     echo "❌ No Response"
 fi
 
 echo -n "Database Connection: "
-if cd /opt/appreciatemate && sudo -u together timeout 10 npm run db:push &>/dev/null; then
+if cd /opt/appreciatemate && sudo -u appreciatemate timeout 10 npm run db:push &>/dev/null; then
     echo "✅ Connected"
 else
     echo "❌ Connection Failed"  
@@ -153,10 +153,10 @@ echo "======================="
 ```bash
 # Check processes
 htop
-sudo -u together pm2 monit
+sudo -u appreciatemate pm2 monit
 
 # Restart if needed
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 #### Slow Response
@@ -174,29 +174,32 @@ sudo systemctl restart postgresql
 #### From Backup
 ```bash
 # Stop application
-sudo -u together pm2 delete together
+sudo -u appreciatemate pm2 delete appreciatemate
 
 # Restore database
-sudo -u postgres dropdb together_db --if-exists
-sudo -u postgres createdb together_db -O together_user
-gunzip -c /backup/together/db_YYYYMMDD.sql.gz | sudo -u postgres psql together_db
+sudo -u postgres dropdb appreciatemate_db --if-exists
+sudo -u postgres createdb appreciatemate_db -O appreciatemate_user
+gunzip -c /backup/appreciatemate/db_YYYYMMDD.sql.gz | sudo -u postgres psql appreciatemate_db
 
 # Restore application files
-sudo rm -rf /opt/appreciatemate/*
-sudo tar -xzf /backup/together/app_YYYYMMDD.tar.gz -C /opt/
+# ⚠️  DANGER: This will permanently delete all application files!
+# Only run this if you have verified backups and are absolutely sure!
+# Uncomment the line below only after double-checking your backup path:
+# sudo rm -rf /opt/appreciatemate/*
+sudo tar -xzf /backup/appreciatemate/app_YYYYMMDD.tar.gz -C /opt/
 
 # Start application
-cd /opt/appreciatemate && sudo -u together pm2 start ecosystem.config.js
+cd /opt/appreciatemate && sudo -u appreciatemate pm2 start ecosystem.config.cjs
 ```
 
 #### Reset to Defaults
 ```bash
 # Reset database
 cd /opt/appreciatemate
-sudo -u together npm run db:push --force
+sudo -u appreciatemate npm run db:push --force
 
 # Reset admin user (creates default admin@example.com / admin123)
-sudo -u together node -e "
+sudo -u appreciatemate node -e "
 const { seedAdminUser } = require('./server/services/seed-admin.ts');
 seedAdminUser().then(() => console.log('Admin reset complete'));
 "
@@ -212,7 +215,7 @@ uname -a > diagnostic.txt
 echo "Services:" >> diagnostic.txt  
 sudo systemctl status nginx postgresql >> diagnostic.txt
 echo "Application:" >> diagnostic.txt
-sudo -u together pm2 status >> diagnostic.txt  
+sudo -u appreciatemate pm2 status >> diagnostic.txt  
 echo "Recent logs:" >> diagnostic.txt
 sudo -u appreciatemate pm2 logs appreciatemate --lines 100 >> diagnostic.txt
 ```

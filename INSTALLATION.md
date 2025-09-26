@@ -183,7 +183,7 @@ PGDATABASE=appreciatemate_db
 
 # Application Settings
 NODE_ENV=production
-PORT=3000
+PORT=5000
 SESSION_SECRET=auto_generated_secret
 
 # OpenAI Integration
@@ -199,7 +199,7 @@ OPENAI_API_KEY=your_openai_api_key
 - Gzip compression
 - SSL termination (if configured)
 
-Configuration file: `/etc/nginx/sites-available/together`
+Configuration file: `/etc/nginx/sites-available/appreciatemate`
 
 #### PM2 Process Management
 - Automatic restarts
@@ -237,7 +237,7 @@ sudo ufw status verbose
    http://your-domain.com
    
    # If using IP address
-   http://your-server-ip:3000
+   http://your-server-ip:5000
    ```
 
 2. **Default Admin Login**
@@ -353,7 +353,7 @@ cd /opt/appreciatemate
 git pull origin main
 npm ci --production
 npm run build
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 ### 2. Database Maintenance
@@ -489,7 +489,7 @@ sudo -u together npm ci --production
 sudo -u together npm run build
 
 # Restart after fixes
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 #### 3. Database Connection Errors
@@ -534,10 +534,10 @@ sudo tail -f /var/log/nginx/error.log
 
 # Restart services
 sudo systemctl restart nginx
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 
 # Check if app is listening
-netstat -tlnp | grep :3000
+netstat -tlnp | grep :5000
 ```
 
 #### 5. SSL Certificate Issues
@@ -584,7 +584,7 @@ sudo swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 # Restart application
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 #### 7. Permission Issues
@@ -616,7 +616,7 @@ free -h
 # Network connectivity
 ping google.com
 curl -I http://localhost:5000
-netstat -tlnp | grep :3000
+netstat -tlnp | grep :5000
 
 # Service status
 sudo systemctl status nginx
@@ -704,7 +704,7 @@ sudo -u together pm2 delete together
 sudo -u together pm2 kill
 
 # Remove Nginx configuration
-sudo rm -f /etc/nginx/sites-available/together
+sudo rm -f /etc/nginx/sites-available/appreciatemate
 sudo rm -f /etc/nginx/sites-enabled/together
 sudo systemctl reload nginx
 
