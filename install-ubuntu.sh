@@ -226,23 +226,42 @@ configure_new_remote_db() {
     
     info "Generated secure password for application database user"
     
-    # Create database and user
-    log "Creating database and user..."
+    # Create database and user (idempotent)
+    log "Setting up database and user..."
     
     # Escape single quotes in password for SQL
     DB_PASSWORD_ESCAPED=${DB_PASSWORD//\'/\'\'\'}
     
-    # Create user with proper quoting
-    if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD_ESCAPED';" &>/dev/null; then
-        warn "User $DB_USER might already exist, continuing..."
+    # Check if user already exists
+    USER_EXISTS=$(PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';" 2>/dev/null || echo "")
+    
+    if [ "$USER_EXISTS" = "1" ]; then
+        log "User $DB_USER already exists, updating password..."
+        PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "ALTER USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD_ESCAPED';" &>/dev/null || true
+    else
+        log "Creating user $DB_USER..."
+        if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD_ESCAPED';" 2>/dev/null; then
+            error "Failed to create user $DB_USER"
+            return 1
+        fi
     fi
     
-    # Create database with proper quoting
-    if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE DATABASE \"$DB_NAME\" OWNER \"$DB_USER\";" &>/dev/null; then
-        warn "Database $DB_NAME might already exist, continuing..."
+    # Check if database already exists
+    DB_EXISTS=$(PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME';" 2>/dev/null || echo "")
+    
+    if [ "$DB_EXISTS" = "1" ]; then
+        log "Database $DB_NAME already exists, updating owner..."
+        PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "ALTER DATABASE \"$DB_NAME\" OWNER TO \"$DB_USER\";" &>/dev/null || true
+    else
+        log "Creating database $DB_NAME..."
+        if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE DATABASE \"$DB_NAME\" OWNER \"$DB_USER\";" 2>/dev/null; then
+            error "Failed to create database $DB_NAME"
+            return 1
+        fi
     fi
     
-    # Grant permissions with proper quoting
+    # Grant permissions (always run these to ensure proper setup)
+    log "Setting up database permissions..."
     PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE \"$DB_NAME\" TO \"$DB_USER\";" &>/dev/null || true
     PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO \"$DB_USER\";" &>/dev/null || true
     PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$DB_USER\";" &>/dev/null || true
@@ -335,11 +354,27 @@ install_local_postgres() {
     sudo systemctl start postgresql
     sudo systemctl enable postgresql
     
-    # Create database user and database
-    log "Creating database user and database..."
-    sudo -u postgres createuser --no-superuser --no-createdb --no-createrole "$DB_USER"
-    sudo -u postgres createdb "$DB_NAME" -O "$DB_USER"
-    sudo -u postgres psql -c "ALTER USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
+    # Create database user and database (idempotent)
+    log "Setting up database user and database..."
+    
+    # Check if user already exists
+    if sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';" | grep -q 1; then
+        log "User $DB_USER already exists, updating password..."
+        sudo -u postgres psql -c "ALTER USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
+    else
+        log "Creating user $DB_USER..."
+        sudo -u postgres createuser --no-superuser --no-createdb --no-createrole "$DB_USER"
+        sudo -u postgres psql -c "ALTER USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
+    fi
+    
+    # Check if database already exists
+    if sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME';" | grep -q 1; then
+        log "Database $DB_NAME already exists, updating owner..."
+        sudo -u postgres psql -c "ALTER DATABASE \"$DB_NAME\" OWNER TO \"$DB_USER\";"
+    else
+        log "Creating database $DB_NAME..."
+        sudo -u postgres createdb "$DB_NAME" -O "$DB_USER"
+    fi
     
     # Configure PostgreSQL for local connections
     POSTGRES_CONFIG="/etc/postgresql/$POSTGRES_VERSION/main"
@@ -358,9 +393,13 @@ install_local_postgres() {
     
     sudo cp "$POSTGRES_CONFIG/pg_hba.conf" "$POSTGRES_CONFIG/pg_hba.conf.backup"
     
-    # Allow local connections (Unix socket and TCP)
-    echo "local   $DB_NAME    $DB_USER                                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
-    echo "host    $DB_NAME    $DB_USER    127.0.0.1/32                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
+    # Allow local connections (Unix socket and TCP) - check if already exists
+    if ! sudo grep -q "local.*$DB_NAME.*$DB_USER" "$POSTGRES_CONFIG/pg_hba.conf"; then
+        echo "local   $DB_NAME    $DB_USER                                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
+    fi
+    if ! sudo grep -q "host.*$DB_NAME.*$DB_USER.*127.0.0.1" "$POSTGRES_CONFIG/pg_hba.conf"; then
+        echo "host    $DB_NAME    $DB_USER    127.0.0.1/32                md5" | sudo tee -a "$POSTGRES_CONFIG/pg_hba.conf"
+    fi
     
     # Reload PostgreSQL configuration
     sudo systemctl reload postgresql
@@ -370,15 +409,18 @@ install_local_postgres() {
 
 # Create application user
 create_app_user() {
-    log "Creating application user: $APP_USER"
+    log "Setting up application user: $APP_USER"
     
     if ! id "$APP_USER" &>/dev/null; then
+        log "Creating user $APP_USER..."
         sudo adduser --system --group --home "$APP_DIR" --shell /bin/bash "$APP_USER"
-        sudo mkdir -p "$APP_DIR"
-        sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
     else
-        info "User $APP_USER already exists"
+        log "User $APP_USER already exists, continuing..."
     fi
+    
+    # Ensure directory exists and has correct permissions (idempotent)
+    sudo mkdir -p "$APP_DIR"
+    sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 }
 
 # Download and setup application
@@ -706,7 +748,13 @@ start_application() {
     # Setup PM2 startup for system service
     sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$APP_USER" --hp "$APP_DIR" || true
     
-    # Start application with PM2 as app user
+    # Start application with PM2 as app user (stop existing first if running)
+    if sudo -u "$APP_USER" pm2 list | grep -q "together"; then
+        log "Stopping existing Together application..."
+        sudo -u "$APP_USER" pm2 delete together &>/dev/null || true
+    fi
+    
+    log "Starting Together application with PM2..."
     sudo -u "$APP_USER" bash -c "cd $APP_DIR && pm2 start ecosystem.config.cjs"
     
     # Save PM2 process list for startup
