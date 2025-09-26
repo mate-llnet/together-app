@@ -35,7 +35,7 @@ APP_NAME="together"
 APP_USER="together"
 APP_DIR="/opt/together"
 NODE_VERSION="20"
-POSTGRES_VERSION="15"
+POSTGRES_VERSION="" # Will be detected dynamically
 USE_DATABASE="false"
 
 # Check if running as root
@@ -561,8 +561,29 @@ EOF
         sudo systemctl enable nginx
         log "Nginx configured successfully"
     else
-        error "Nginx configuration test failed"
-        exit 1
+        error "Nginx configuration test failed. Checking for syntax errors..."
+        sudo nginx -t 2>&1 | head -10
+        
+        # Try to fix common issues and retry
+        warn "Attempting to fix common Nginx configuration issues..."
+        
+        # Remove any conflicting default sites
+        sudo rm -f /etc/nginx/sites-enabled/default
+        
+        # Ensure proper file permissions
+        sudo chown root:root "/etc/nginx/sites-available/together"
+        sudo chmod 644 "/etc/nginx/sites-available/together"
+        
+        # Test again
+        if sudo nginx -t; then
+            sudo systemctl restart nginx
+            sudo systemctl enable nginx
+            log "Nginx configured successfully after fixes"
+        else
+            error "Nginx configuration still failing. Please check manually:"
+            sudo nginx -t
+            warn "Continuing installation - you can fix Nginx configuration later"
+        fi
     fi
 }
 
