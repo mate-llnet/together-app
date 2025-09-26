@@ -413,6 +413,7 @@ create_app_user() {
     # Ensure directory exists and has correct permissions (idempotent)
     sudo mkdir -p "$APP_DIR"
     sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+    sudo chmod 755 "$APP_DIR"  # Allow access to directory for debugging and administration
 }
 
 # Download and setup application
@@ -499,7 +500,7 @@ configure_environment() {
     cat > /tmp/together.env << EOF
 # Application Configuration
 NODE_ENV=production
-PORT=3000
+PORT=5000
 SESSION_SECRET=${SESSION_SECRET}
 
 # OpenAI Configuration
@@ -551,13 +552,14 @@ configure_pm2() {
     # Check if ecosystem.config.cjs exists in repository, create if missing
     if [[ ! -f "$APP_DIR/ecosystem.config.cjs" ]]; then
         log "Creating production PM2 configuration..."
-        sudo -u "$APP_USER" tee "$APP_DIR/ecosystem.config.cjs" > /dev/null << 'EOF'
+        sudo -u "$APP_USER" tee "$APP_DIR/ecosystem.config.cjs" > /dev/null << EOF
 module.exports = {
   apps: [{
-    name: 'together',
+    name: '${APP_NAME}',
     script: 'npm',
     args: 'start',
-    cwd: '/opt/together',
+    cwd: '${APP_DIR}',
+    env_file: '${APP_DIR}/.env',
     env: {
       NODE_ENV: 'production',
       PORT: 5000
@@ -567,9 +569,9 @@ module.exports = {
     watch: false,
     max_memory_restart: '1G',
     log_date_format: 'YYYY-MM-DD HH:mm Z',
-    error_file: '/var/log/together/error.log',
-    out_file: '/var/log/together/access.log',
-    log_file: '/var/log/together/combined.log'
+    error_file: '/var/log/${APP_NAME}/error.log',
+    out_file: '/var/log/${APP_NAME}/access.log',
+    log_file: '/var/log/${APP_NAME}/combined.log'
   }]
 };
 EOF
@@ -578,26 +580,26 @@ EOF
     fi
     
     # Create log directory
-    sudo mkdir -p /var/log/together
-    sudo chown "$APP_USER:$APP_USER" /var/log/together
+    sudo mkdir -p "/var/log/$APP_NAME"
+    sudo chown "$APP_USER:$APP_USER" "/var/log/$APP_NAME"
     
     # Configure log rotation
-    cat > /tmp/together-logrotate << 'EOF'
-/var/log/together/*.log {
+    cat > "/tmp/$APP_NAME-logrotate" << EOF
+/var/log/$APP_NAME/*.log {
     daily
     missingok
     rotate 30
     compress
     delaycompress
     notifempty
-    create 644 together together
+    create 644 $APP_USER $APP_USER
     postrotate
         pm2 reloadLogs
     endscript
 }
 EOF
     
-    sudo mv /tmp/together-logrotate /etc/logrotate.d/together
+    sudo mv "/tmp/$APP_NAME-logrotate" "/etc/logrotate.d/$APP_NAME"
 }
 
 # Setup firewall
