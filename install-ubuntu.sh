@@ -670,7 +670,7 @@ server {
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -685,7 +685,7 @@ server {
 
     # Static files caching
     location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host \$host;
         expires 1y;
         add_header Cache-Control "public, immutable";
@@ -693,13 +693,13 @@ server {
 
     # Health check endpoint
     location /health {
-        proxy_pass http://127.0.0.1:3000/api/health;
+        proxy_pass http://127.0.0.1:5000/api/health;
         access_log off;
     }
 
     # API health check (alternative path)
     location /api/health {
-        proxy_pass http://127.0.0.1:3000/api/health;
+        proxy_pass http://127.0.0.1:5000/api/health;
         access_log off;
     }
 }
