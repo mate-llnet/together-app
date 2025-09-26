@@ -1,0 +1,44 @@
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together bash -c "cd /opt/together && NODE_ENV=production node dist/index.js"
+The `fetchConnectionCache` option is deprecated (now always `true`)
+🌟 Seeding achievements...
+❌ Failed to seed achievements: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: together, db: together, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/together/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/together/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/together/node_modules/drizzle-orm/query-promise.js:21:17)
+Failed to seed startup data: Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: together, db: together, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/together/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/together/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/together/node_modules/drizzle-orm/query-promise.js:21:17)
+10:09:10 AM [express] serving on port 5000
+file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1579
+this.user===s&&this.database===s&&this.password===null)throw new Error(`No datab\
+                                                             ^
+
+Error: No database host or connection string was set, and key parameters have default values (host: localhost, user: together, db: together, password: null). Is an environment variable missing? Alternatively, if you intended to connect with these parameters, please set the host to 'localhost' explicitly.
+    at An.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1579:62)
+    at Cn.newClient (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1383:3)
+    at Cn.connect (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1378:23)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1407:63)
+    at Cn.query (file:///opt/together/node_modules/@neondatabase/serverless/index.mjs:1623:14)
+    at NeonPreparedQuery.execute (file:///opt/together/node_modules/drizzle-orm/neon-serverless/session.js:76:33)
+    at file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:708:30
+    at Object.startActiveSpan (file:///opt/together/node_modules/drizzle-orm/tracing.js:8:14)
+    at PgSelectBase.execute (file:///opt/together/node_modules/drizzle-orm/pg-core/query-builders/select.js:707:19)
+    at PgSelectBase.then (file:///opt/together/node_modules/drizzle-orm/query-promise.js:21:17)
+
+Node.js v20.19.5
+ubuntu@ip-172-31-23-207:/opt/together$
