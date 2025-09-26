@@ -1,9 +1,10 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Users, TrendingUp, Award, ArrowRight, CheckCircle } from "lucide-react";
+import { Heart, Users, TrendingUp, Award, ArrowRight, CheckCircle, Code } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { getVersionInfo } from "@shared/version";
 
 const features = [
   {
@@ -48,6 +49,7 @@ const testimonials = [
 
 export default function Landing() {
   const { user } = useAuth();
+  const versionInfo = getVersionInfo();
 
   const { data: siteSettings } = useQuery({
     queryKey: ['/api/site/settings'],
@@ -56,19 +58,26 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Version Badge */}
+      <div className="fixed top-4 right-4 z-50">
+        <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground">
+          <Code className="h-3 w-3" />
+          <span data-testid="version-display">{versionInfo.displayVersion}</span>
+        </div>
+      </div>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10" />
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-20 h-20 bg-gradient-warm rounded-2xl flex items-center justify-center mx-auto mb-8 transform rotate-3 hover:rotate-6 transition-transform duration-300">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 transform rotate-3 hover:rotate-6 transition-transform duration-300 shadow-lg">
               <Heart className="h-10 w-10 text-white" />
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent" data-testid="hero-title">
               Appreciate Life
               <br />
-              <span className="bg-gradient-warm bg-clip-text text-transparent">Together</span>
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Together</span>
             </h1>
             
             <p className="text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed" data-testid="hero-description">
@@ -77,19 +86,19 @@ export default function Landing() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               {user ? (
-                <Button asChild size="lg" className="bg-gradient-warm hover:opacity-90 text-white px-8 py-6 text-lg rounded-xl" data-testid="button-dashboard">
+                <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-dashboard">
                   <Link href="/app">
                     Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild size="lg" className="bg-gradient-warm hover:opacity-90 text-white px-8 py-6 text-lg rounded-xl" data-testid="button-get-started">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-get-started">
                     <Link href="/auth">
                       Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg rounded-xl border-2" data-testid="button-learn-more">
+                  <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg rounded-xl border-2 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300" data-testid="button-learn-more">
                     <Link href="/about">
                       Learn More
                     </Link>
@@ -115,9 +124,9 @@ export default function Landing() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group" data-testid={`feature-card-${index}`}>
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-card/50 backdrop-blur-sm" data-testid={`feature-card-${index}`}>
                 <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-warm rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <feature.icon className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-3" data-testid={`feature-title-${index}`}>{feature.title}</h3>
@@ -132,7 +141,7 @@ export default function Landing() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10" data-testid="section-testimonials">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10" data-testid="section-testimonials">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="testimonials-title">
@@ -169,7 +178,7 @@ export default function Landing() {
       <section className="py-20 lg:py-32" data-testid="section-cta">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-warm rounded-3xl p-12 lg:p-16 text-white">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-12 lg:p-16 text-white shadow-2xl">
               <h2 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="cta-title">
                 Start Appreciating Each Other Today
               </h2>
@@ -178,12 +187,12 @@ export default function Landing() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                <Button asChild size="lg" variant="secondary" className="px-8 py-6 text-lg rounded-xl bg-white text-purple-600 hover:bg-gray-100" data-testid="button-cta-signup">
+                <Button asChild size="lg" variant="secondary" className="px-8 py-6 text-lg rounded-xl bg-white text-blue-600 hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-cta-signup">
                   <Link href="/auth">
                     Sign Up Free <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg rounded-xl border-2 border-white text-white hover:bg-white/10" data-testid="button-cta-contact">
+                <Button asChild variant="outline" size="lg" className="px-8 py-6 text-lg rounded-xl border-2 border-white text-white hover:bg-white/10 transition-all duration-300" data-testid="button-cta-contact">
                   <Link href="/contact">
                     Contact Us
                   </Link>
