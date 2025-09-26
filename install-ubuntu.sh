@@ -159,6 +159,33 @@ configure_remote_postgres() {
     log "Installing PostgreSQL client..."
     sudo apt-get install -y postgresql-client
     
+    echo
+    info "Remote PostgreSQL Setup Options:"
+    echo "1) Connect to existing database (database already created)"
+    echo "2) Create database during installation (requires superuser access)"
+    echo
+    
+    while true; do
+        read -p "Choose setup option (1 or 2) [2]: " remote_option
+        case ${remote_option:-2} in
+            1)
+                configure_existing_remote_db
+                break
+                ;;
+            2)
+                configure_new_remote_db
+                break
+                ;;
+            *)
+                error "Invalid choice. Please enter 1 or 2."
+                ;;
+        esac
+    done
+}
+
+configure_existing_remote_db() {
+    log "Connecting to existing remote database..."
+    
     prompt_user "Database host" DB_HOST
     prompt_user "Database port" DB_PORT "5432"
     prompt_user "Database name" DB_NAME
@@ -172,6 +199,63 @@ configure_remote_postgres() {
         exit 1
     fi
     log "Database connection successful!"
+}
+
+configure_new_remote_db() {
+    log "Creating new database on remote PostgreSQL server..."
+    
+    prompt_user "Database host" DB_HOST
+    prompt_user "Database port" DB_PORT "5432"
+    prompt_user "Superuser username (e.g., postgres)" DB_SUPERUSER "postgres"
+    prompt_user "Superuser password" DB_SUPERUSER_PASSWORD
+    
+    # Test superuser connection
+    info "Testing superuser connection..."
+    if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "SELECT 1;" &>/dev/null; then
+        error "Failed to connect with superuser credentials. Please check your credentials."
+        exit 1
+    fi
+    
+    # Generate database and user details
+    DB_NAME="together_db"
+    DB_USER="together_user"
+    DB_PASSWORD=$(generate_password)
+    
+    prompt_user "Database name" DB_NAME "$DB_NAME"
+    prompt_user "Application database username" DB_USER "$DB_USER"
+    
+    info "Generated secure password for application database user"
+    
+    # Create database and user
+    log "Creating database and user..."
+    
+    # Escape single quotes in password for SQL
+    DB_PASSWORD_ESCAPED=${DB_PASSWORD//\'/\'\'\'}
+    
+    # Create user with proper quoting
+    if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE USER \"$DB_USER\" WITH ENCRYPTED PASSWORD '$DB_PASSWORD_ESCAPED';" &>/dev/null; then
+        warn "User $DB_USER might already exist, continuing..."
+    fi
+    
+    # Create database with proper quoting
+    if ! PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "postgres" -c "CREATE DATABASE \"$DB_NAME\" OWNER \"$DB_USER\";" &>/dev/null; then
+        warn "Database $DB_NAME might already exist, continuing..."
+    fi
+    
+    # Grant permissions with proper quoting
+    PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE \"$DB_NAME\" TO \"$DB_USER\";" &>/dev/null || true
+    PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO \"$DB_USER\";" &>/dev/null || true
+    PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO \"$DB_USER\";" &>/dev/null || true
+    PGPASSWORD="$DB_SUPERUSER_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_SUPERUSER" -d "$DB_NAME" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO \"$DB_USER\";" &>/dev/null || true
+    
+    # Test new user connection
+    info "Testing application user connection..."
+    if ! PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" &>/dev/null; then
+        error "Failed to connect with new application user. Please check the setup."
+        exit 1
+    fi
+    
+    log "Database and user created successfully!"
 }
 
 # System update and basic packages
@@ -227,10 +311,25 @@ install_nodejs() {
 
 # Install PostgreSQL locally
 install_local_postgres() {
-    log "Installing PostgreSQL $POSTGRES_VERSION locally..."
+    log "Installing PostgreSQL (latest available version)..."
     
-    # Install PostgreSQL
-    sudo apt-get install -y postgresql-$POSTGRES_VERSION postgresql-client-$POSTGRES_VERSION postgresql-contrib-$POSTGRES_VERSION
+    # Install PostgreSQL meta packages - this automatically installs the default version
+    sudo apt-get install -y postgresql postgresql-client postgresql-contrib
+    
+    # Detect the actual installed version for configuration paths
+    POSTGRES_VERSION=$(psql --version 2>/dev/null | grep -o '[0-9]\+' | head -1)
+    
+    if [ -z "$POSTGRES_VERSION" ]; then
+        # Fallback: detect from apt packages
+        POSTGRES_VERSION=$(apt-cache show postgresql | awk '/Depends: postgresql-/{match($0,/postgresql-([0-9]+)/,a); print a[1]; exit}' 2>/dev/null)
+    fi
+    
+    if [ -z "$POSTGRES_VERSION" ]; then
+        # Last resort: check installed packages
+        POSTGRES_VERSION=$(dpkg -l | grep '^ii.*postgresql-[0-9]' | head -1 | grep -o 'postgresql-[0-9]\+' | grep -o '[0-9]\+' || echo "16")
+    fi
+    
+    log "Detected PostgreSQL version: $POSTGRES_VERSION"
     
     # Start and enable PostgreSQL
     sudo systemctl start postgresql
@@ -244,6 +343,19 @@ install_local_postgres() {
     
     # Configure PostgreSQL for local connections
     POSTGRES_CONFIG="/etc/postgresql/$POSTGRES_VERSION/main"
+    
+    # Verify config directory exists, try common alternatives if not
+    if [ ! -d "$POSTGRES_CONFIG" ]; then
+        # Try to find the actual config directory
+        POSTGRES_CONFIG=$(find /etc/postgresql -name "main" -type d | head -1 2>/dev/null)
+        if [ -z "$POSTGRES_CONFIG" ]; then
+            error "Could not locate PostgreSQL configuration directory"
+            info "Please check your PostgreSQL installation and configure manually"
+            return 1
+        fi
+        log "Using PostgreSQL config directory: $POSTGRES_CONFIG"
+    fi
+    
     sudo cp "$POSTGRES_CONFIG/pg_hba.conf" "$POSTGRES_CONFIG/pg_hba.conf.backup"
     
     # Allow local connections (Unix socket and TCP)
@@ -512,7 +624,7 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_proxied expired no-cache no-store private auth;
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;
 
     location / {
