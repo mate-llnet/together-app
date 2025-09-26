@@ -1,0 +1,46 @@
+ubuntu@ip-172-31-23-207:/$ sudo -u together ls -la /opt/together/node_modules/.bin/vite
+lrwxrwxrwx 1 together together 19 Sep 26 08:31 /opt/together/node_modules/.bin/vite -> ../vite/bin/vite.js
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && echo \$PATH"
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && ./node_modules/.bin/vite --version"
+bash: line 1: ./node_modules/.bin/vite: Permission denied
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && PATH=\$PATH:./node_modules/.bin npm run build"
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+sh: 1: vite: Permission denied
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist"
+sh: 1: vite: Permission denied
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && rm -rf node_modules package-lock.json"
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && npm install"
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+
+added 485 packages, and audited 486 packages in 50s
+
+64 packages are looking for funding
+  run `npm fund` for details
+
+5 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && npm run build"
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+vite v5.4.20 building for production...
+✓ 2040 modules transformed.
+../dist/public/index.html                   1.95 kB │ gzip:   0.74 kB
+../dist/public/assets/index-Dbmmvh55.css   72.61 kB │ gzip:  12.58 kB
+../dist/public/assets/index-4tA21q3v.js   450.03 kB │ gzip: 133.80 kB
+✓ built in 9.30s
+
+  dist/index.js  101.8kb
+
+⚡ Done in 17ms
+ubuntu@ip-172-31-23-207:/$
