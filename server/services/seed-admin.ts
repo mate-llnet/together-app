@@ -26,7 +26,8 @@ export async function seedDefaultAdmin(): Promise<void> {
     const adminUser = await storage.createUser({
       name: DEFAULT_ADMIN.name,
       email: DEFAULT_ADMIN.email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: 'admin'
     });
     
     console.log(`✅ Successfully created default admin user!`);
