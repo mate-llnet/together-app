@@ -95,31 +95,25 @@ configure_database() {
     echo
     log "Database Configuration"
     echo "Choose database option:"
-    echo "1) In-memory storage (default, no database required)"
-    echo "2) Local PostgreSQL (install on this server)"
-    echo "3) Remote PostgreSQL (connect to external database)"
+    echo "1) Local PostgreSQL (install on this server) [recommended]"
+    echo "2) Remote PostgreSQL (connect to external database)"
     echo
     
     while true; do
-        read -p "Enter choice (1, 2, or 3) [1]: " db_choice
+        read -p "Enter choice (1 or 2) [1]: " db_choice
         case ${db_choice:-1} in
             1)
-                DATABASE_TYPE="memory"
-                USE_DATABASE="false"
-                break
-                ;;
-            2)
                 DATABASE_TYPE="local"
                 USE_DATABASE="true"
                 break
                 ;;
-            3)
+            2)
                 DATABASE_TYPE="remote"
                 USE_DATABASE="true"
                 break
                 ;;
             *)
-                error "Invalid choice. Please enter 1, 2, or 3."
+                error "Invalid choice. Please enter 1 or 2."
                 ;;
         esac
     done
@@ -128,8 +122,6 @@ configure_database() {
         configure_local_postgres
     elif [ "$DATABASE_TYPE" = "remote" ]; then
         configure_remote_postgres
-    else
-        log "Using in-memory storage (no database setup required)"
     fi
 }
 

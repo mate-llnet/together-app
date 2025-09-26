@@ -705,7 +705,7 @@ sudo -u together pm2 kill
 
 # Remove Nginx configuration
 sudo rm -f /etc/nginx/sites-available/appreciatemate
-sudo rm -f /etc/nginx/sites-enabled/together
+sudo rm -f /etc/nginx/sites-enabled/appreciatemate
 sudo systemctl reload nginx
 
 # Remove SSL certificates (optional)

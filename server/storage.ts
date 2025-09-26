@@ -95,7 +95,8 @@ export interface IStorage {
   completeMilestone(id: string): Promise<Milestone | undefined>;
 }
 
-export class MemStorage implements IStorage {
+// NOTE: MemStorage is incomplete - use DrizzleStorage instead
+export class MemStorage {
   private users: Map<string, User>;
   private couples: Map<string, Couple>;
   private activityCategories: Map<string, ActivityCategory>;
