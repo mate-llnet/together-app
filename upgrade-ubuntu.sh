@@ -1,17 +1,25 @@
 #!/bin/bash
 
-# Together App - Ubuntu Server Upgrade Script
-# This script safely upgrades the Together application on Ubuntu servers
+# AppreciateMate v1.1.0-Beta - Ubuntu Server Upgrade Script
+# This script safely upgrades the AppreciateMate application on Ubuntu servers
+# Includes backward compatibility for "together" v1.0.x installations
 # Usage: ./upgrade-ubuntu.sh [--force] [--skip-backup]
 
 set -euo pipefail
 
-# Configuration
-APP_DIR="/opt/together"
-APP_USER="together"
-SERVICE_NAME="together"
-BACKUP_DIR="/opt/together-backups"
-LOG_FILE="/var/log/together-upgrade.log"
+# Configuration (defaults for new AppreciateMate installation)
+APP_DIR="/opt/appreciatemate"
+APP_USER="appreciatemate"
+SERVICE_NAME="appreciatemate"
+BACKUP_DIR="/opt/appreciatemate-backups"
+LOG_FILE="/var/log/appreciatemate-upgrade.log"
+
+# Legacy compatibility - detect old "together" installation
+LEGACY_APP_DIR="/opt/together"
+LEGACY_APP_USER="together"
+LEGACY_SERVICE_NAME="together"
+LEGACY_BACKUP_DIR="/opt/together-backups"
+LEGACY_LOG_FILE="/var/log/together-upgrade.log"
 
 # Colors for output
 RED='\033[0;31m'
@@ -62,6 +70,89 @@ error() {
 
 info() {
     echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}" | tee -a "$LOG_FILE"
+}
+
+# Detect legacy "together" installation and migrate to AppreciateMate
+detect_and_migrate_legacy() {
+    log "Checking for legacy \"together\" installation..."
+    
+    # Check if legacy installation exists
+    if [[ -d "$LEGACY_APP_DIR" ]]; then
+        log "Legacy \"together\" installation detected at $LEGACY_APP_DIR"
+        
+        # Check if new AppreciateMate directory already exists
+        if [[ -d "$APP_DIR" ]]; then
+            warn "Both legacy ($LEGACY_APP_DIR) and new ($APP_DIR) directories exist"
+            warn "Using new AppreciateMate directory for upgrade"
+            return 0
+        fi
+        
+        log "Migrating from legacy \"together\" to AppreciateMate..."
+        
+        # Stop legacy PM2 process
+        if sudo -u "$LEGACY_APP_USER" pm2 list 2>/dev/null | grep -q "$LEGACY_SERVICE_NAME"; then
+            log "Stopping legacy PM2 process..."
+            sudo -u "$LEGACY_APP_USER" pm2 stop "$LEGACY_SERVICE_NAME" || true
+            sudo -u "$LEGACY_APP_USER" pm2 delete "$LEGACY_SERVICE_NAME" || true
+        fi
+        
+        # Create new user if needed
+        if ! id "$APP_USER" &>/dev/null; then
+            log "Creating AppreciateMate user..."
+            sudo useradd -r -s /bin/bash -d "$APP_DIR" "$APP_USER"
+        fi
+        
+        # Move directory and update ownership
+        log "Moving application directory..."
+        sudo mv "$LEGACY_APP_DIR" "$APP_DIR"
+        sudo chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+        
+        # Create log directory
+        sudo mkdir -p "$(dirname "$LOG_FILE")"
+        sudo chown "$APP_USER:$APP_USER" "$(dirname "$LOG_FILE")"
+        
+        # Move backup directory if it exists
+        if [[ -d "$LEGACY_BACKUP_DIR" ]]; then
+            log "Moving backup directory..."
+            sudo mv "$LEGACY_BACKUP_DIR" "$BACKUP_DIR"
+            sudo chown -R "$APP_USER:$APP_USER" "$BACKUP_DIR"
+        fi
+        
+        log "Legacy migration completed successfully"
+        return 0
+    elif [[ -d "$APP_DIR" ]]; then
+        log "AppreciateMate installation found at $APP_DIR"
+        return 0
+    else
+        error "No installation found at $APP_DIR or $LEGACY_APP_DIR"
+        error "Please run the installation script first"
+        exit 1
+    fi
+}
+
+# Clean up Neon dependencies and install postgres driver
+update_database_driver() {
+    log "Updating database driver from Neon to postgres-js..."
+    
+    # Remove Neon packages if they exist
+    sudo -u "$APP_USER" bash -c "
+        cd $APP_DIR
+        if npm list @neondatabase/serverless >/dev/null 2>&1; then
+            log 'Removing Neon serverless packages...'
+            npm uninstall @neondatabase/serverless ws bufferutil 2>/dev/null || true
+        fi
+        
+        # Ensure postgres driver is installed
+        if ! npm list postgres >/dev/null 2>&1; then
+            log 'Installing postgres-js driver...'
+            npm install postgres
+        fi
+        
+        # Clean up unused packages
+        npm prune
+    "
+    
+    log "Database driver update completed"
 }
 
 # Check if running as root
@@ -381,14 +472,21 @@ rollback() {
 
 # Main upgrade function
 main() {
-    log "Starting Together application upgrade..."
+    log "Starting AppreciateMate application upgrade..."
     log "Command: $0 $*"
     
     # Pre-flight checks
     check_root
     check_sudo
+    
+    # Detect and migrate legacy installation if needed
+    detect_and_migrate_legacy
+    
     check_app_directory
     check_git_repo
+    
+    # Update database driver from Neon to postgres-js
+    update_database_driver
     
     # Store original commit for rollback
     local original_commit=$(get_current_commit)
@@ -416,7 +514,7 @@ main() {
     # Clear trap
     trap - ERR
     
-    log "✅ Together application upgrade completed successfully!"
+    log "✅ AppreciateMate application upgrade completed successfully!"
     log "Previous version: $original_commit"
     log "Current version:  $(get_current_commit)"
     
