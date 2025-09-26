@@ -1,0 +1,55 @@
+ubuntu@ip-172-31-23-207:/opt/together$ pm2 status
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together pm2 status
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ cluster │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ together │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together pm2 start
+[PM2][ERROR] File ecosystem.config.js not found
+ubuntu@ip-172-31-23-207:/opt/together$ dir
+INSTALLATION.md     attached_assets  components.json  drizzle.config.ts     ecosystem.local.cjs  node_modules       package.json       replit.md  shared              tsconfig.json      vite.config.ts
+TROUBLESHOOTING.md  client           dist             ecosystem.config.cjs  install-ubuntu.sh    package-lock.json  postcss.config.js  server     tailwind.config.ts  upgrade-ubuntu.sh
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together pm2 delete together
+[PM2] Applying action deleteProcessId on app [together](ids: [ 0 ])
+[PM2] [together](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together bash -c "cd /opt/together && pm2 start ecosystem.config.cjs"
+[PM2][WARN] Applications together not running, starting...
+[PM2] App [together] launched (1 instances)
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ cluster │ 2866     │ 0s     │ 0    │ online    │ 0%       │ 41.1mb   │ together │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together pm2 list
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ cluster │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ together │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-23-207:/opt/together$ sudo -u together pm2 logs together
+[TAILING] Tailing last 15 lines for [together] process (change the value with --lines option)
+/var/log/together/access-0.log last 15 lines:
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together | 2025-09-26 10:07 +00:00: 2025-09-26 10:07 +00:00:
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together | 2025-09-26 10:07 +00:00: 2025-09-26 10:07 +00:00:
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together | 2025-09-26 10:07 +00:00: 2025-09-26 10:07 +00:00:
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+
+/var/log/together/error-0.log last 15 lines:
