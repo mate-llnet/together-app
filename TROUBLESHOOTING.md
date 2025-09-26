@@ -1,17 +1,17 @@
-# Together App - Quick Troubleshooting Guide
+# AppreciateMate v1.1.0-Beta - Quick Troubleshooting Guide
 
 ## Quick Diagnostics
 
 ### Check System Status
 ```bash
 # Application status
-sudo -u together pm2 status
+sudo -u appreciatemate pm2 status
 
 # Service status  
 sudo systemctl status nginx postgresql
 
 # Application logs
-sudo -u together pm2 logs together --lines 50
+sudo -u appreciatemate pm2 logs appreciatemate --lines 50
 
 # System resources
 free -h && df -h
@@ -22,9 +22,9 @@ free -h && df -h
 #### 🚫 Application Won't Start
 ```bash
 # Check and fix
-sudo -u together pm2 logs together
-cd /opt/together && sudo -u together npm run build
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 logs appreciatemate
+cd /opt/appreciatemate && sudo -u appreciatemate npm run build
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 #### 🔗 Database Connection Failed  
@@ -34,16 +34,16 @@ sudo systemctl restart postgresql
 sudo -u postgres psql -c "SELECT version();"
 
 # Test app database connection
-cd /opt/together && sudo -u together npm run db:push
+cd /opt/appreciatemate && sudo -u appreciatemate npm run db:push
 ```
 
 #### 🌐 502 Bad Gateway (Nginx)
 ```bash
-# Check if app is running on port 3000
-netstat -tlnp | grep :3000
+# Check if app is running on port 5000
+netstat -tlnp | grep :5000
 
 # Restart services
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 sudo systemctl restart nginx
 ```
 
@@ -58,19 +58,19 @@ sudo systemctl restart nginx
 ```bash
 # Check memory usage
 free -h
-sudo -u together pm2 logs together | grep -i "memory\|heap"
+sudo -u appreciatemate pm2 logs appreciatemate | grep -i "memory\|heap"
 
 # Increase memory limit
-sudo -u together nano /opt/together/ecosystem.config.js
+sudo -u appreciatemate nano /opt/appreciatemate/ecosystem.config.cjs
 # Change: max_memory_restart: '2G'
-sudo -u together pm2 restart together
+sudo -u appreciatemate pm2 restart appreciatemate
 ```
 
 #### 🔑 Permission Errors
 ```bash
 # Fix permissions
-sudo chown -R together:together /opt/together
-sudo chmod 600 /opt/together/.env
+sudo chown -R appreciatemate:appreciatemate /opt/appreciatemate
+sudo chmod 600 /opt/appreciatemate/.env
 ```
 
 ### Emergency Commands
@@ -86,13 +86,13 @@ sudo systemctl stop postgresql  # if local
 ```bash
 sudo systemctl start postgresql  # if local
 sudo systemctl start nginx
-cd /opt/together && sudo -u together pm2 start ecosystem.config.js
+cd /opt/appreciatemate && sudo -u together pm2 start ecosystem.config.js
 ```
 
 #### View All Logs
 ```bash
 # Application
-sudo -u together pm2 logs together
+sudo -u appreciatemate pm2 logs appreciatemate
 
 # Nginx
 sudo tail -f /var/log/nginx/error.log
@@ -138,7 +138,7 @@ else
 fi
 
 echo -n "Database Connection: "
-if cd /opt/together && sudo -u together timeout 10 npm run db:push &>/dev/null; then
+if cd /opt/appreciatemate && sudo -u together timeout 10 npm run db:push &>/dev/null; then
     echo "✅ Connected"
 else
     echo "❌ Connection Failed"  
@@ -182,17 +182,17 @@ sudo -u postgres createdb together_db -O together_user
 gunzip -c /backup/together/db_YYYYMMDD.sql.gz | sudo -u postgres psql together_db
 
 # Restore application files
-sudo rm -rf /opt/together/*
+sudo rm -rf /opt/appreciatemate/*
 sudo tar -xzf /backup/together/app_YYYYMMDD.tar.gz -C /opt/
 
 # Start application
-cd /opt/together && sudo -u together pm2 start ecosystem.config.js
+cd /opt/appreciatemate && sudo -u together pm2 start ecosystem.config.js
 ```
 
 #### Reset to Defaults
 ```bash
 # Reset database
-cd /opt/together
+cd /opt/appreciatemate
 sudo -u together npm run db:push --force
 
 # Reset admin user (creates default admin@example.com / admin123)
@@ -214,7 +214,7 @@ sudo systemctl status nginx postgresql >> diagnostic.txt
 echo "Application:" >> diagnostic.txt
 sudo -u together pm2 status >> diagnostic.txt  
 echo "Recent logs:" >> diagnostic.txt
-sudo -u together pm2 logs together --lines 100 >> diagnostic.txt
+sudo -u appreciatemate pm2 logs appreciatemate --lines 100 >> diagnostic.txt
 ```
 
 Include `diagnostic.txt` when requesting support.

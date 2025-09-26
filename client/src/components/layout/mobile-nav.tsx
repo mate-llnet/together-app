@@ -24,7 +24,7 @@ export default function MobileNav() {
             <div className="w-8 h-8 rounded-full gradient-warm flex items-center justify-center">
               <i className="fas fa-heart text-white text-sm"></i>
             </div>
-            <h1 className="text-lg font-semibold text-foreground">Together</h1>
+            <h1 className="text-lg font-semibold text-foreground">AppreciateMate</h1>
           </div>
           <Button
             variant="ghost"

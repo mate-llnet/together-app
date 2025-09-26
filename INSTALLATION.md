@@ -1,8 +1,8 @@
-# Together App - Ubuntu Server Installation Guide
+# AppreciateMate v1.1.0-Beta - Ubuntu Server Installation Guide
 
 ## Overview
 
-This guide provides complete instructions for installing the Together relationship app on an Ubuntu server. The installation script supports both development and production environments with optional local or remote PostgreSQL database configurations.
+This guide provides complete instructions for installing the AppreciateMate relationship app on an Ubuntu server. The installation script supports both development and production environments with optional local or remote PostgreSQL database configurations.
 
 ## Table of Contents
 
@@ -43,7 +43,7 @@ This guide provides complete instructions for installing the Together relationsh
 ### 2. Domain Name (Optional but Recommended)
 - A registered domain name pointing to your server's IP address
 - Required for SSL certificate setup
-- Example: `together.yourdomain.com`
+- Example: `appreciatemate.yourdomain.com`
 
 ### 3. Required Accounts
 - **OpenAI Account**: Get API key from [OpenAI Platform](https://platform.openai.com/api-keys)
@@ -61,7 +61,7 @@ For a standard installation with all recommended settings:
 
 ```bash
 # Download the installation script
-wget https://raw.githubusercontent.com/your-repo/together-app/main/install-ubuntu.sh
+wget https://raw.githubusercontent.com/your-repo/appreciatemate/main/install-ubuntu.sh
 
 # Make it executable
 chmod +x install-ubuntu.sh
@@ -78,11 +78,11 @@ The script will guide you through the configuration process with interactive pro
 
 ```bash
 # Option 1: Download directly
-wget https://raw.githubusercontent.com/your-repo/together-app/main/install-ubuntu.sh
+wget https://raw.githubusercontent.com/your-repo/appreciatemate/main/install-ubuntu.sh
 
 # Option 2: Clone the repository
-git clone https://github.com/your-repo/together-app.git
-cd together-app
+git clone https://github.com/your-repo/appreciatemate.git
+cd appreciatemate
 ```
 
 ### Step 2: Prepare System
@@ -135,13 +135,13 @@ After installation, verify the application is running:
 
 ```bash
 # Check application status
-sudo -u together pm2 status
+sudo -u appreciatemate pm2 status
 
 # Check logs
-sudo -u together pm2 logs together
+sudo -u appreciatemate pm2 logs appreciatemate
 
 # Test HTTP response
-curl -I http://localhost:3000
+curl -I http://localhost:5000
 ```
 
 ## Configuration Options
@@ -151,8 +151,8 @@ curl -I http://localhost:3000
 #### Local PostgreSQL
 ```bash
 # Default settings
-Database Name: together_db
-Database User: together_user  
+Database Name: appreciatemate_db
+Database User: appreciatemate_user  
 Database Host: localhost
 Database Port: 5432
 Password: [Auto-generated]
@@ -170,16 +170,16 @@ Database Password: your_database_password
 
 ### Application Configuration
 
-The application is configured via environment variables in `/opt/together/.env`:
+The application is configured via environment variables in `/opt/appreciatemate/.env`:
 
 ```bash
 # Database Connection
 DATABASE_URL=postgresql://user:password@host:port/database
 PGHOST=localhost
 PGPORT=5432
-PGUSER=together_user
+PGUSER=appreciatemate_user
 PGPASSWORD=generated_password
-PGDATABASE=together_db
+PGDATABASE=appreciatemate_db
 
 # Application Settings
 NODE_ENV=production
@@ -207,7 +207,7 @@ Configuration file: `/etc/nginx/sites-available/together`
 - Memory monitoring
 - Cluster mode support
 
-Configuration file: `/opt/together/ecosystem.config.js`
+Configuration file: `/opt/appreciatemate/ecosystem.config.cjs`
 
 ### Firewall Configuration
 
@@ -259,14 +259,14 @@ sudo ufw status verbose
 # Verify all services are running
 sudo systemctl status nginx
 sudo systemctl status postgresql  # (if local)
-sudo -u together pm2 status
+sudo -u appreciatemate pm2 status
 
 # Check application logs
-sudo -u together pm2 logs together --lines 50
+sudo -u appreciatemate pm2 logs appreciatemate --lines 50
 
 # Verify database connection
-sudo -u together -i
-cd /opt/together
+sudo -u appreciatemate -i
+cd /opt/appreciatemate
 npm run db:push  # Should show "No schema changes"
 ```
 
@@ -284,12 +284,12 @@ openssl s_client -connect your-domain.com:443 -servername your-domain.com
 
 ```bash
 # Health check endpoint
-curl http://localhost:3000/api/health
+curl http://localhost:5000/api/health
 
 # API endpoint test
 curl -H "Content-Type: application/json" \
      -H "x-user-id: 1" \
-     http://localhost:3000/api/activities
+     http://localhost:5000/api/activities
 ```
 
 ## Security Considerations
@@ -313,7 +313,7 @@ curl -H "Content-Type: application/json" \
 
 ### 2. Application Security
 
-- **Environment Variables**: Stored securely in `/opt/together/.env` (600 permissions)
+- **Environment Variables**: Stored securely in `/opt/appreciatemate/.env` (600 permissions)
 - **Session Security**: Strong session secret auto-generated
 - **Database Security**: Restricted database access with dedicated user
 - **SSL/TLS**: Automatic HTTPS with Let's Encrypt (if configured)
@@ -327,7 +327,7 @@ curl -H "Content-Type: application/json" \
 2. **Monitor Logs**
    ```bash
    # Application logs
-   sudo -u together pm2 logs together
+   sudo -u appreciatemate pm2 logs appreciatemate
    
    # System logs
    sudo journalctl -u nginx -f
@@ -349,7 +349,7 @@ curl -H "Content-Type: application/json" \
 
 ```bash
 # Standard update process
-cd /opt/together
+cd /opt/appreciatemate
 git pull origin main
 npm ci --production
 npm run build
@@ -360,21 +360,21 @@ sudo -u together pm2 restart together
 
 ```bash
 # Database migrations
-cd /opt/together
+cd /opt/appreciatemate
 sudo -u together npm run db:push
 
 # Database backup (local PostgreSQL)
-sudo -u postgres pg_dump together_db > backup_$(date +%Y%m%d).sql
+sudo -u postgres pg_dump appreciatemate_db > backup_$(date +%Y%m%d).sql
 
 # Database restore (local PostgreSQL)
-sudo -u postgres psql together_db < backup_20241201.sql
+sudo -u postgres psql appreciatemate_db < backup_20241201.sql
 ```
 
 ### 3. Log Management
 
 ```bash
 # View logs
-sudo -u together pm2 logs together
+sudo -u appreciatemate pm2 logs appreciatemate
 
 # Clear old logs
 sudo -u together pm2 flush together
@@ -409,10 +409,10 @@ sudo mkdir -p /backup/together
 sudo tar -czf /backup/together/app_$(date +%Y%m%d).tar.gz -C /opt together
 
 # Backup database
-sudo -u postgres pg_dump together_db | gzip > /backup/together/db_$(date +%Y%m%d).sql.gz
+sudo -u postgres pg_dump appreciatemate_db | gzip > /backup/together/db_$(date +%Y%m%d).sql.gz
 
 # Backup environment config
-sudo cp /opt/together/.env /backup/together/.env_$(date +%Y%m%d)
+sudo cp /opt/appreciatemate/.env /backup/together/.env_$(date +%Y%m%d)
 ```
 
 #### Automated Backup Script
@@ -426,7 +426,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 mkdir -p "$BACKUP_DIR"
 
 # Database backup
-sudo -u postgres pg_dump together_db | gzip > "$BACKUP_DIR/db_$DATE.sql.gz"
+sudo -u postgres pg_dump appreciatemate_db | gzip > "$BACKUP_DIR/db_$DATE.sql.gz"
 
 # Application backup
 sudo tar -czf "$BACKUP_DIR/app_$DATE.tar.gz" -C /opt together
@@ -465,24 +465,24 @@ sudo crontab -e
 
 **Symptom**: PM2 shows app as "errored" or "stopped"
 ```bash
-sudo -u together pm2 status
+sudo -u appreciatemate pm2 status
 # Shows: together | errored
 ```
 
 **Solutions**:
 ```bash
 # Check detailed logs
-sudo -u together pm2 logs together --lines 100
+sudo -u appreciatemate pm2 logs appreciatemate --lines 100
 
 # Common fixes:
 # Fix 1: Environment variables missing
-sudo -u together cat /opt/together/.env
+sudo -u together cat /opt/appreciatemate/.env
 
 # Fix 2: Database connection issue  
 sudo -u together npm run db:push
 
 # Fix 3: Dependencies missing
-cd /opt/together
+cd /opt/appreciatemate
 sudo -u together npm ci --production
 
 # Fix 4: Build issues
@@ -572,8 +572,8 @@ Error: JavaScript heap out of memory
 
 **Solutions**:
 ```bash
-# Increase memory limit in ecosystem.config.js
-sudo -u together nano /opt/together/ecosystem.config.js
+# Increase memory limit in ecosystem.config.cjs
+sudo -u together nano /opt/appreciatemate/ecosystem.config.cjs
 # Change: max_memory_restart: '2G'  # Increase from 1G
 
 # Add swap space
@@ -597,8 +597,8 @@ Error: EACCES: permission denied
 **Solutions**:
 ```bash
 # Fix application permissions
-sudo chown -R together:together /opt/together
-sudo chmod 600 /opt/together/.env
+sudo chown -R together:together /opt/appreciatemate
+sudo chmod 600 /opt/appreciatemate/.env
 
 # Fix log permissions
 sudo chown -R together:together /var/log/together
@@ -615,23 +615,23 @@ free -h
 
 # Network connectivity
 ping google.com
-curl -I http://localhost:3000
+curl -I http://localhost:5000
 netstat -tlnp | grep :3000
 
 # Service status
 sudo systemctl status nginx
 sudo systemctl status postgresql
-sudo -u together pm2 status
+sudo -u appreciatemate pm2 status
 
 # Application logs
-sudo -u together pm2 logs together --lines 100
+sudo -u appreciatemate pm2 logs appreciatemate --lines 100
 sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 
 # Database connectivity
 sudo -u postgres psql -c "SELECT version();"
-sudo -u together -i
-cd /opt/together && npm run db:push
+sudo -u appreciatemate -i
+cd /opt/appreciatemate && npm run db:push
 ```
 
 ### Performance Issues
@@ -643,7 +643,7 @@ htop
 sudo -u together pm2 monit
 
 # Check for memory leaks
-sudo -u together pm2 logs together | grep -i memory
+sudo -u appreciatemate pm2 logs appreciatemate | grep -i memory
 ```
 
 #### Slow Database Queries
@@ -665,7 +665,7 @@ If you encounter issues not covered in this guide:
 
 1. **Check Application Logs**
    ```bash
-   sudo -u together pm2 logs together --lines 200
+   sudo -u appreciatemate pm2 logs appreciatemate --lines 200
    ```
 
 2. **Check System Logs**
@@ -681,9 +681,9 @@ If you encounter issues not covered in this guide:
    uname -a >> diagnostic.txt
    echo -e "\nServices:" >> diagnostic.txt
    sudo systemctl status nginx >> diagnostic.txt
-   sudo -u together pm2 status >> diagnostic.txt
+   sudo -u appreciatemate pm2 status >> diagnostic.txt
    echo -e "\nRecent logs:" >> diagnostic.txt
-   sudo -u together pm2 logs together --lines 50 >> diagnostic.txt
+   sudo -u appreciatemate pm2 logs appreciatemate --lines 50 >> diagnostic.txt
    ```
 
 4. **Contact Support**
@@ -712,14 +712,14 @@ sudo systemctl reload nginx
 sudo certbot delete --cert-name your-domain.com
 
 # Remove application files
-sudo rm -rf /opt/together
+sudo rm -rf /opt/appreciatemate
 
 # Remove user
 sudo deluser --remove-home together
 
 # Remove database (local PostgreSQL only)
-sudo -u postgres dropdb together_db
-sudo -u postgres dropuser together_user
+sudo -u postgres dropdb appreciatemate_db
+sudo -u postgres dropuser appreciatemate_user
 
 # Remove logs
 sudo rm -rf /var/log/together
