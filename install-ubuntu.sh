@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AppreciateMate v1.1.0-Beta - Ubuntu Server Installation Script
+# AppreciateMate v1.6.0-Beta - Ubuntu Server Installation Script
 # This script installs the AppreciateMate relationship app on a fresh Ubuntu server
 # Supports both local and remote PostgreSQL installations
 
@@ -80,7 +80,7 @@ generate_password() {
 banner() {
     echo -e "${BLUE}"
     echo "╔══════════════════════════════════════════════════════════════════╗"
-    echo "║                     AppreciateMate v1.1.0-Beta                  ║"
+    echo "║                     AppreciateMate v1.6.0-Beta                  ║"
     echo "║                   Ubuntu Server Installer                       ║"
     echo "║                                                                  ║"
     echo "║  A relationship appreciation app that helps couples track        ║"
@@ -548,6 +548,12 @@ setup_database() {
 # Configure PM2
 configure_pm2() {
     log "Configuring PM2 process manager..."
+    
+    # Create log directories with proper permissions BEFORE creating PM2 config
+    log "Setting up log directories..."
+    sudo mkdir -p "/var/log/${APP_NAME}"
+    sudo chown -R "$APP_USER:$APP_USER" "/var/log/${APP_NAME}"
+    sudo chmod 755 "/var/log/${APP_NAME}"
     
     # Check if ecosystem.config.cjs exists in repository, create if missing
     if [[ ! -f "$APP_DIR/ecosystem.config.cjs" ]]; then

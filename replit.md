@@ -2,7 +2,26 @@
 
 ## Overview
 
-Together is a relationship activity tracking application that helps couples monitor and appreciate their shared household contributions. The app allows partners to log activities, generate AI-powered suggestions, send appreciations, and view analytics on their relationship dynamics. Built with a modern full-stack architecture, it emphasizes collaboration, positive reinforcement, and balanced partnership responsibilities.
+AppreciateMate v1.6.0-Beta is a relationship activity tracking application that helps couples monitor and appreciate their shared household contributions. The app allows partners to log activities, generate AI-powered suggestions, send appreciations, and view analytics on their relationship dynamics. Built with a modern full-stack architecture, it emphasizes collaboration, positive reinforcement, and balanced partnership responsibilities.
+
+## Recent Changes (v1.6.0-Beta)
+
+### UI/UX Overhaul (September 2025)
+- **Complete color scheme redesign**: Replaced bright green theme with professional blue-based design
+- **Professional gradient system**: New blue-to-indigo gradients throughout the application
+- **Enhanced visual design**: Improved shadows, transitions, and modern aesthetic
+- **Landing page refresh**: Updated hero section, feature cards, and CTA sections with new color palette
+
+### Dynamic Versioning System
+- **Version display**: Added version badge visible throughout the application
+- **Shared version management**: Centralized version info in `shared/version.ts`
+- **Consistent branding**: v1.6.0-Beta displayed across all user-facing pages
+
+### Deployment & Infrastructure Improvements  
+- **Fixed install script**: Resolved critical PM2 log directory permission issues
+- **Ubuntu deployment**: Bulletproof installation process for fresh Ubuntu servers
+- **Log management**: Proper directory permissions for PM2 process logging
+- **Environment configuration**: Enhanced .env file handling and validation
 
 ## User Preferences
 

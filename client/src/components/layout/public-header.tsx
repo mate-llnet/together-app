@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { getVersionInfo } from "@shared/version";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -14,6 +15,7 @@ export default function PublicHeader() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+  const versionInfo = getVersionInfo();
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/20 dark:border-gray-700/20" data-testid="public-header">
@@ -21,15 +23,15 @@ export default function PublicHeader() {
         <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity" data-testid="logo-link">
-            <div className="w-10 h-10 bg-gradient-warm rounded-xl flex items-center justify-center transform rotate-3 hover:rotate-6 transition-transform duration-300">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center transform rotate-3 hover:rotate-6 transition-transform duration-300 shadow-lg">
               <Heart className="h-6 w-6 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gray-900 dark:text-white" data-testid="logo-text">
                 AppreciateMate
               </span>
-              <span className="text-xs text-purple-600 dark:text-purple-400 font-medium -mt-1" data-testid="logo-version">
-                v1.1.0-Beta
+              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium -mt-1" data-testid="logo-version">
+                {versionInfo.displayVersion}
               </span>
             </div>
           </Link>
@@ -40,9 +42,9 @@ export default function PublicHeader() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-purple-600 dark:hover:text-purple-400 ${
+                className={`text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
                   location === item.href
-                    ? "text-purple-600 dark:text-purple-400"
+                    ? "text-blue-600 dark:text-blue-400"
                     : "text-gray-700 dark:text-gray-300"
                 }`}
                 data-testid={`nav-link-${item.name.toLowerCase()}`}
@@ -55,7 +57,7 @@ export default function PublicHeader() {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4" data-testid="desktop-actions">
             {user ? (
-              <Button asChild className="bg-gradient-warm hover:opacity-90 text-white" data-testid="button-dashboard">
+              <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg transition-all duration-300" data-testid="button-dashboard">
                 <Link href="/app">
                   Dashboard
                 </Link>
@@ -67,7 +69,7 @@ export default function PublicHeader() {
                     Sign In
                   </Link>
                 </Button>
-                <Button asChild className="bg-gradient-warm hover:opacity-90 text-white" data-testid="button-signup">
+                <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg transition-all duration-300" data-testid="button-signup">
                   <Link href="/auth">
                     Get Started
                   </Link>
@@ -103,7 +105,7 @@ export default function PublicHeader() {
                   href={item.href}
                   className={`text-base font-medium px-2 py-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     location === item.href
-                      ? "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20"
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -116,7 +118,7 @@ export default function PublicHeader() {
             
             <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col space-y-3" data-testid="mobile-actions">
               {user ? (
-                <Button asChild className="bg-gradient-warm hover:opacity-90 text-white justify-center" data-testid="mobile-button-dashboard">
+                <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white justify-center shadow-lg transition-all duration-300" data-testid="mobile-button-dashboard">
                   <Link href="/app" onClick={() => setMobileMenuOpen(false)}>
                     Dashboard
                   </Link>
@@ -128,7 +130,7 @@ export default function PublicHeader() {
                       Sign In
                     </Link>
                   </Button>
-                  <Button asChild className="bg-gradient-warm hover:opacity-90 text-white justify-center" data-testid="mobile-button-signup">
+                  <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white justify-center shadow-lg transition-all duration-300" data-testid="mobile-button-signup">
                     <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
                       Get Started
                     </Link>

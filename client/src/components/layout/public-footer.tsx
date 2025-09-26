@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Heart, Mail, Github, Twitter, Linkedin } from "lucide-react";
+import { getVersionInfo } from "@shared/version";
 
 const footerLinks = {
   product: [
@@ -29,6 +30,8 @@ const socialLinks = [
 ];
 
 export default function PublicFooter() {
+  const versionInfo = getVersionInfo();
+  
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800" data-testid="public-footer">
       <div className="container mx-auto px-4 py-12 lg:py-16">
@@ -37,15 +40,15 @@ export default function PublicFooter() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center space-x-3 mb-6 hover:opacity-80 transition-opacity" data-testid="footer-logo">
-              <div className="w-10 h-10 bg-gradient-warm rounded-xl flex items-center justify-center transform rotate-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center transform rotate-3 shadow-lg">
                 <Heart className="h-6 w-6 text-white" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-gray-900 dark:text-white">
                   AppreciateMate
                 </span>
-                <span className="text-xs text-purple-600 dark:text-purple-400 font-medium -mt-1">
-                  v1.1.0-Beta
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-medium -mt-1">
+                  {versionInfo.displayVersion}
                 </span>
               </div>
             </Link>
@@ -59,7 +62,7 @@ export default function PublicFooter() {
                 <a
                   key={social.name}
                   href={social.href}
-                  className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gradient-warm hover:text-white transition-all duration-300 group"
+                  className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gradient-to-br hover:from-blue-600 hover:to-indigo-600 hover:text-white transition-all duration-300 group"
                   data-testid={`social-${social.name.toLowerCase()}`}
                   aria-label={social.name}
                 >
@@ -79,7 +82,7 @@ export default function PublicFooter() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-sm"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                     data-testid={`footer-product-${link.name.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {link.name}
@@ -99,7 +102,7 @@ export default function PublicFooter() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-sm"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                     data-testid={`footer-company-${link.name.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {link.name}
@@ -119,7 +122,7 @@ export default function PublicFooter() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-sm"
+                    className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm"
                     data-testid={`footer-support-${link.name.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     {link.name}
@@ -143,11 +146,11 @@ export default function PublicFooter() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm"
+                className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                 data-testid="newsletter-email"
               />
               <button
-                className="px-6 py-2 bg-gradient-warm text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-300 text-sm font-medium shadow-lg"
                 data-testid="newsletter-submit"
               >
                 Subscribe
@@ -163,13 +166,13 @@ export default function PublicFooter() {
           </div>
           
           <div className="mt-4 sm:mt-0 flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-            <Link href="/privacy" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors" data-testid="footer-privacy">
+            <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-testid="footer-privacy">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors" data-testid="footer-terms">
+            <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors" data-testid="footer-terms">
               Terms
             </Link>
-            <a href="mailto:hello@appreciatemate.com" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1" data-testid="footer-email">
+            <a href="mailto:hello@appreciatemate.com" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1" data-testid="footer-email">
               <Mail className="h-4 w-4" />
               Contact
             </a>

@@ -44,7 +44,7 @@ export default function About() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10" />
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl lg:text-7xl font-bold mb-6 bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent" data-testid="about-hero-title">
@@ -86,7 +86,7 @@ export default function About() {
                 </div>
               </div>
               <div className="relative">
-                <div className="w-full h-96 bg-gradient-warm rounded-3xl flex items-center justify-center transform rotate-2 hover:rotate-1 transition-transform duration-300">
+                <div className="w-full h-96 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center transform rotate-2 hover:rotate-1 transition-transform duration-300 shadow-lg">
                   <Heart className="h-32 w-32 text-white opacity-80" />
                 </div>
               </div>
@@ -96,7 +96,7 @@ export default function About() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10" data-testid="section-values">
+      <section className="py-20 lg:py-32 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10" data-testid="section-values">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="values-title">
@@ -111,7 +111,7 @@ export default function About() {
             {values.map((value, index) => (
               <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm" data-testid={`value-card-${index}`}>
                 <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-warm rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <value.icon className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-3" data-testid={`value-title-${index}`}>{value.title}</h3>
@@ -140,7 +140,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center group" data-testid={`stat-${index}`}>
-                <div className="text-5xl lg:text-6xl font-bold bg-gradient-warm bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300" data-testid={`stat-number-${index}`}>
+                <div className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300" data-testid={`stat-number-${index}`}>
                   {stat.number}
                 </div>
                 <div className="text-lg text-muted-foreground" data-testid={`stat-label-${index}`}>
@@ -156,7 +156,7 @@ export default function About() {
       <section className="py-20 lg:py-32" data-testid="section-cta">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-warm rounded-3xl p-12 lg:p-16 text-white">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-3xl p-12 lg:p-16 text-white shadow-2xl">
               <h2 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="cta-title">
                 Ready to Start Your Journey?
               </h2>
@@ -166,7 +166,7 @@ export default function About() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" variant="secondary" className="px-8 py-6 text-lg rounded-xl bg-white text-purple-600 hover:bg-gray-100" data-testid="button-get-started">
+                <Button asChild size="lg" variant="secondary" className="px-8 py-6 text-lg rounded-xl bg-white text-blue-600 hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-get-started">
                   <Link href="/auth">
                     Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
