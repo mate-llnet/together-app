@@ -15,6 +15,7 @@ import Settings from "@/pages/settings";
 import Landing from "@/pages/landing";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
+import Admin from "@/pages/admin";
 import AppLayout from "@/components/layout/app-layout";
 import PublicLayout from "@/components/layout/public-layout";
 
@@ -43,6 +44,7 @@ function AppRouter() {
         <Route path="/app/analytics" component={Analytics} />
         <Route path="/app/couple-insights" component={CoupleInsights} />
         <Route path="/app/settings" component={Settings} />
+        <Route path="/admin" component={Admin} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
@@ -72,8 +74,8 @@ function MainRouter() {
     return <Auth onLogin={login} />;
   }
 
-  // If user is trying to access app routes but not authenticated
-  if (location.startsWith('/app') && !user) {
+  // If user is trying to access app routes or admin but not authenticated
+  if ((location.startsWith('/app') || location.startsWith('/admin')) && !user) {
     return <Auth onLogin={login} />;
   }
 
@@ -82,8 +84,8 @@ function MainRouter() {
     return <PublicRouter />;
   }
 
-  // If authenticated user is accessing app routes
-  if (user && location.startsWith('/app')) {
+  // If authenticated user is accessing app routes or admin
+  if (user && (location.startsWith('/app') || location.startsWith('/admin'))) {
     return <AppRouter />;
   }
 

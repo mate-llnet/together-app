@@ -6,7 +6,10 @@ import {
   registerSchema, 
   invitePartnerSchema,
   insertActivitySchema,
-  insertAppreciationSchema
+  insertAppreciationSchema,
+  insertSiteSettingsSchema,
+  insertSitePageSchema,
+  insertContactSubmissionSchema
 } from "@shared/schema";
 import { generateActivitySuggestions, categorizeActivity, generateAppreciationMessage, analyzeUserPatterns, generateActivityPredictions, detectRecurringTasks, generateSmartReminders, analyzeRelationshipDynamics, generateCoupleRecommendations, generateRelationshipSummary } from "./services/openai";
 import { GamificationService } from "./services/gamification";
@@ -1355,6 +1358,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to generate AI couple analysis:", error);
       res.status(500).json({ message: "Failed to generate couple analysis" });
+    }
+  });
+
+  // Site Content Management Routes
+  
+  // Site Settings Routes
+  app.get("/api/site/settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Failed to get site settings:", error);
+      res.status(500).json({ message: "Failed to get site settings" });
+    }
+  });
+
+  app.put("/api/site/settings", async (req, res) => {
+    try {
+      const data = insertSiteSettingsSchema.parse(req.body);
+      const settings = await storage.updateSiteSettings(data);
+      res.json(settings);
+    } catch (error) {
+      console.error("Failed to update site settings:", error);
+      res.status(400).json({ message: "Invalid site settings data" });
+    }
+  });
+
+  // Site Pages Routes
+  app.get("/api/site/pages", async (req, res) => {
+    try {
+      const pages = await storage.getSitePages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Failed to get site pages:", error);
+      res.status(500).json({ message: "Failed to get site pages" });
+    }
+  });
+
+  app.get("/api/site/pages/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const page = await storage.getSitePage(slug);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error) {
+      console.error("Failed to get site page:", error);
+      res.status(500).json({ message: "Failed to get site page" });
+    }
+  });
+
+  app.post("/api/site/pages", async (req, res) => {
+    try {
+      const data = insertSitePageSchema.parse(req.body);
+      const page = await storage.createSitePage(data);
+      res.json(page);
+    } catch (error) {
+      console.error("Failed to create site page:", error);
+      res.status(400).json({ message: "Invalid site page data" });
+    }
+  });
+
+  app.put("/api/site/pages/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const data = insertSitePageSchema.parse(req.body);
+      const page = await storage.updateSitePage(slug, data);
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json(page);
+    } catch (error) {
+      console.error("Failed to update site page:", error);
+      res.status(400).json({ message: "Invalid site page data" });
+    }
+  });
+
+  app.delete("/api/site/pages/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const deleted = await storage.deleteSitePage(slug);
+      if (!deleted) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      res.json({ message: "Page deleted successfully" });
+    } catch (error) {
+      console.error("Failed to delete site page:", error);
+      res.status(500).json({ message: "Failed to delete site page" });
+    }
+  });
+
+  // Contact Form Routes
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const data = insertContactSubmissionSchema.parse(req.body);
+      const submission = await storage.createContactSubmission(data);
+      
+      // TODO: Send email notification here
+      console.log("New contact submission:", submission);
+      
+      res.json({ message: "Contact form submitted successfully", id: submission.id });
+    } catch (error) {
+      console.error("Failed to submit contact form:", error);
+      res.status(400).json({ message: "Invalid contact form data" });
+    }
+  });
+
+  app.get("/api/contact/submissions", async (req, res) => {
+    try {
+      const submissions = await storage.getContactSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Failed to get contact submissions:", error);
+      res.status(500).json({ message: "Failed to get contact submissions" });
+    }
+  });
+
+  app.put("/api/contact/submissions/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const submission = await storage.updateContactSubmission(id, updates);
+      if (!submission) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+      res.json(submission);
+    } catch (error) {
+      console.error("Failed to update contact submission:", error);
+      res.status(500).json({ message: "Failed to update contact submission" });
     }
   });
 
