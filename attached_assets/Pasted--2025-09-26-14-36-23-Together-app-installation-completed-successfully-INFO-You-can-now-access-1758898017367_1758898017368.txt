@@ -1,0 +1,143 @@
+
+[2025-09-26 14:36:23] Together app installation completed successfully!
+[INFO] You can now access your relationship app and start tracking activities together!
+ubuntu@ip-172-31-16-222:~$ sudo -u appreciatemate pm2 status
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ cluster │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ app… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-16-222:~$ sudo -u appreciatemate pm2 logs together
+[TAILING] Tailing last 15 lines for [together] process (change the value with --lines option)
+/var/log/together/access-0.log last 15 lines:
+/var/log/together/error-0.log last 15 lines:
+^C
+ubuntu@ip-172-31-16-222:~$ cd /opt/
+ubuntu@ip-172-31-16-222:/opt$ dir
+appreciatemate
+ubuntu@ip-172-31-16-222:/opt$ cd appreciatemate
+-bash: cd: appreciatemate: Permission denied
+ubuntu@ip-172-31-16-222:/opt$ sudo -u appreciatemate pm2 logs together --lines 50
+[TAILING] Tailing last 50 lines for [together] process (change the value with --lines option)
+/var/log/together/access-0.log last 50 lines:
+/var/log/together/error-0.log last 50 lines:
+^C
+ubuntu@ip-172-31-16-222:/opt$ sudo -u appreciatemate pm2 show together
+ Describing process with id 0 - name together
+┌───────────────────┬──────────────────────────────────────────────┐
+│ status            │ errored                                      │
+│ name              │ together                                     │
+│ namespace         │ default                                      │
+│ version           │ N/A                                          │
+│ restarts          │ 15                                           │
+│ uptime            │ 0                                            │
+│ entire log path   │ /var/log/together/combined-0.log             │
+│ script path       │ /usr/bin/npm                                 │
+│ script args       │ start                                        │
+│ error log path    │ /var/log/together/error-0.log                │
+│ out log path      │ /var/log/together/access-0.log               │
+│ pid path          │ /opt/appreciatemate/.pm2/pids/together-0.pid │
+│ interpreter       │ /usr/bin/node                                │
+│ interpreter args  │ N/A                                          │
+│ script id         │ 0                                            │
+│ exec cwd          │ /opt/together                                │
+│ exec mode         │ cluster_mode                                 │
+│ node.js version   │ 20.19.5                                      │
+│ node env          │ production                                   │
+│ watch & reload    │ ✘                                            │
+│ unstable restarts │ 0                                            │
+│ created at        │ N/A                                          │
+└───────────────────┴──────────────────────────────────────────────┘
+ Divergent env variables from local env
+┌──────────────┬───────────────────────────────────────────────────────────────────────────┐
+│ SUDO_COMMAND │ /usr/bin/bash -c cd /opt/appreciatemate && pm2 start ecosystem.config.cjs │
+└──────────────┴───────────────────────────────────────────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs together [--lines 1000]` to display logs
+ Use `pm2 env 0` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage together
+ubuntu@ip-172-31-16-222:/opt$ pm2 env 0
+[PM2] Spawning PM2 daemon with pm2_home=/home/ubuntu/.pm2
+[PM2] PM2 Successfully daemonized
+[PM2][ERROR] Modules with id 0 not found
+ubuntu@ip-172-31-16-222:/opt$ sudo ls -la /opt/appreciatemate/
+total 772
+drwxr-x---  11 appreciatemate appreciatemate   4096 Sep 26 14:35 .
+drwxr-xr-x   3 root           root             4096 Sep 26 14:33 ..
+-rw-------   1 appreciatemate appreciatemate    600 Sep 26 14:35 .env
+drwxrwxr-x   8 appreciatemate appreciatemate   4096 Sep 26 14:34 .git
+-rw-rw-r--   1 appreciatemate appreciatemate     67 Sep 26 14:34 .gitignore
+drwxrwxr-x   4 appreciatemate appreciatemate   4096 Sep 26 14:34 .npm
+drwxrwxr-x   5 appreciatemate appreciatemate   4096 Sep 26 14:35 .pm2
+-rw-rw-r--   1 appreciatemate appreciatemate    923 Sep 26 14:34 .replit
+-rw-rw-r--   1 appreciatemate appreciatemate  17172 Sep 26 14:34 INSTALLATION.md
+-rw-rw-r--   1 appreciatemate appreciatemate   5296 Sep 26 14:34 TROUBLESHOOTING.md
+-rw-rw-r--   1 appreciatemate appreciatemate  59339 Sep 26 14:34 admin_page.png
+-rw-rw-r--   1 appreciatemate appreciatemate  37381 Sep 26 14:34 after_register_auth.png
+drwxrwxr-x   2 appreciatemate appreciatemate   4096 Sep 26 14:34 attached_assets
+drwxrwxr-x   3 appreciatemate appreciatemate   4096 Sep 26 14:34 client
+-rw-rw-r--   1 appreciatemate appreciatemate    459 Sep 26 14:34 components.json
+drwxrwxr-x   3 appreciatemate appreciatemate   4096 Sep 26 14:34 dist
+-rw-rw-r--   1 appreciatemate appreciatemate    325 Sep 26 14:34 drizzle.config.ts
+-rw-rw-r--   1 appreciatemate appreciatemate    461 Sep 26 14:35 ecosystem.config.cjs
+-rw-rw-r--   1 appreciatemate appreciatemate  31007 Sep 26 14:34 install-ubuntu.sh
+drwxrwxr-x 319 appreciatemate appreciatemate  12288 Sep 26 14:34 node_modules
+-rw-rw-r--   1 appreciatemate appreciatemate 296653 Sep 26 14:34 package-lock.json
+-rw-rw-r--   1 appreciatemate appreciatemate   3629 Sep 26 14:34 package.json
+-rw-rw-r--   1 appreciatemate appreciatemate  26024 Sep 26 14:34 post_logout_admin_nav.png
+-rw-rw-r--   1 appreciatemate appreciatemate 178334 Sep 26 14:34 post_reload.png
+-rw-rw-r--   1 appreciatemate appreciatemate     80 Sep 26 14:34 postcss.config.js
+-rw-rw-r--   1 appreciatemate appreciatemate   3484 Sep 26 14:34 replit.md
+drwxrwxr-x   3 appreciatemate appreciatemate   4096 Sep 26 14:34 server
+drwxrwxr-x   2 appreciatemate appreciatemate   4096 Sep 26 14:34 shared
+-rw-rw-r--   1 appreciatemate appreciatemate   2766 Sep 26 14:34 tailwind.config.ts
+-rw-rw-r--   1 appreciatemate appreciatemate    657 Sep 26 14:34 tsconfig.json
+-rw-rw-r--   1 appreciatemate appreciatemate  15458 Sep 26 14:34 upgrade-ubuntu.sh
+-rw-rw-r--   1 appreciatemate appreciatemate   1080 Sep 26 14:34 vite.config.ts
+ubuntu@ip-172-31-16-222:/opt$ sudo ls -la /opt/appreciatemate/server/
+total 104
+drwxrwxr-x  3 appreciatemate appreciatemate  4096 Sep 26 14:34 .
+drwxr-x--- 11 appreciatemate appreciatemate  4096 Sep 26 14:35 ..
+-rw-rw-r--  1 appreciatemate appreciatemate  3159 Sep 26 14:34 index.ts
+-rw-rw-r--  1 appreciatemate appreciatemate 54448 Sep 26 14:34 routes.ts
+drwxrwxr-x  2 appreciatemate appreciatemate  4096 Sep 26 14:34 services
+-rw-rw-r--  1 appreciatemate appreciatemate 24751 Sep 26 14:34 storage.ts
+-rw-rw-r--  1 appreciatemate appreciatemate  2263 Sep 26 14:34 vite.ts
+ubuntu@ip-172-31-16-222:/opt$ sudo -u appreciatemate pm2 env 0
+namespace: default
+max_memory_restart: 1073741824
+log_date_format: YYYY-MM-DD HH:mm Z
+cwd: /opt/together
+pm_log_path: /var/log/together/combined-0.log
+km_link: false
+vizion_running: false
+NODE_APP_INSTANCE: 0
+together: {}
+PM2_HOME: /opt/appreciatemate/.pm2
+NODE_ENV: production
+PORT: 5000
+PM2_JSON_PROCESSING: true
+PM2_INTERACTOR_PROCESSING: true
+PM2_USAGE: CLI
+_: /usr/bin/pm2
+OLDPWD: /home/ubuntu
+MAIL: /var/mail/appreciatemate
+SUDO_UID: 1000
+PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+SHLVL: 0
+USER: appreciatemate
+TERM: xterm
+LS_COLORS: rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:
+LANG: C.UTF-8
+HOME: /opt/appreciatemate
+LOGNAME: appreciatemate
+PWD: /opt/together
+SUDO_USER: ubuntu
+SUDO_COMMAND: /usr/bin/bash -c cd /opt/appreciatemate && pm2 start ecosystem.config.cjs
+SUDO_GID: 1000
+SHELL: /bin/bash
+unique_id: 5ba883e8-e71f-4d3b-812b-e1835ea67936
+_pm2_version: 6.0.13
+version: N/A
+node_version: 20.19.5
