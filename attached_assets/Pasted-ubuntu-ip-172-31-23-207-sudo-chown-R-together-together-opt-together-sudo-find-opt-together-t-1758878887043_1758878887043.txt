@@ -1,0 +1,59 @@
+ubuntu@ip-172-31-23-207:/$ sudo chown -R together:together /opt/together
+sudo find /opt/together -type d -exec chmod 755 {} \;
+sudo find /opt/together -type f -exec chmod 644 {} \;
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && npm install"
+
+up to date, audited 480 packages in 2s
+
+64 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (3 low, 5 moderate)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+ubuntu@ip-172-31-23-207:/$ sudo -u together bash -c "cd /opt/together && npm run build"
+
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+sh: 1: vite: Permission denied
+ubuntu@ip-172-31-23-207:/$ ls -la /opt/together/
+total 468
+drwxr-xr-x  11 together together   4096 Sep 26 09:16 .
+drwxr-xr-x   3 together together   4096 Sep 26 08:29 ..
+-rw-r--r--   1 together together    578 Sep 26 08:32 .env
+drwxr-xr-x   8 together together   4096 Sep 26 09:16 .git
+-rw-r--r--   1 together together     67 Sep 26 08:31 .gitignore
+drwxr-xr-x   4 together together   4096 Sep 26 08:31 .npm
+drwxr-xr-x   5 together together   4096 Sep 26 08:32 .pm2
+-rw-r--r--   1 together together    874 Sep 26 08:31 .replit
+-rw-r--r--   1 together together  16775 Sep 26 08:31 INSTALLATION.md
+-rw-r--r--   1 together together   4745 Sep 26 08:31 TROUBLESHOOTING.md
+drwxr-xr-x   2 together together   4096 Sep 26 09:16 attached_assets
+drwxr-xr-x   3 together together   4096 Sep 26 08:31 client
+-rw-r--r--   1 together together    459 Sep 26 08:31 components.json
+drwxr-xr-x   3 together together   4096 Sep 26 08:31 dist
+-rw-r--r--   1 together together    325 Sep 26 08:31 drizzle.config.ts
+-rw-r--r--   1 together together    460 Sep 26 09:16 ecosystem.config.cjs
+-rw-r--r--   1 together together    464 Sep 26 08:32 ecosystem.local.cjs
+-rw-r--r--   1 together together  31206 Sep 26 09:16 install-ubuntu.sh
+drwxr-xr-x 317 together together  12288 Sep 26 09:25 node_modules
+-rw-r--r--   1 together together 295147 Sep 26 09:25 package-lock.json
+-rw-r--r--   1 together together   3608 Sep 26 08:31 package.json
+-rw-r--r--   1 together together     80 Sep 26 08:31 postcss.config.js
+-rw-r--r--   1 together together   3484 Sep 26 08:31 replit.md
+drwxr-xr-x   3 together together   4096 Sep 26 08:31 server
+drwxr-xr-x   2 together together   4096 Sep 26 08:31 shared
+-rw-r--r--   1 together together   2766 Sep 26 08:31 tailwind.config.ts
+-rw-r--r--   1 together together    657 Sep 26 08:31 tsconfig.json
+-rw-r--r--   1 together together  11818 Sep 26 09:16 upgrade-ubuntu.sh
+-rw-r--r--   1 together together   1080 Sep 26 08:31 vite.config.ts
+ubuntu@ip-172-31-23-207:/$ sudo -u together whoami
+together
+ubuntu@ip-172-31-23-207:/$
