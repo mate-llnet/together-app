@@ -517,7 +517,7 @@ configure_pm2() {
     # Create PM2 ecosystem file  
     # NOTE: This runs the development server for simplicity
     # For production, consider creating a proper build process
-    cat > /tmp/ecosystem.config.js << 'EOF'
+    cat > /tmp/ecosystem.config.cjs << 'EOF'
 module.exports = {
   apps: [{
     name: 'together',
@@ -541,8 +541,8 @@ module.exports = {
 EOF
     
     # Move PM2 config and set permissions
-    sudo mv /tmp/ecosystem.config.js "$APP_DIR/"
-    sudo chown "$APP_USER:$APP_USER" "$APP_DIR/ecosystem.config.js"
+    sudo mv /tmp/ecosystem.config.cjs "$APP_DIR/"
+    sudo chown "$APP_USER:$APP_USER" "$APP_DIR/ecosystem.config.cjs"
     
     # Create log directory
     sudo mkdir -p /var/log/together
@@ -707,7 +707,7 @@ start_application() {
     sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$APP_USER" --hp "$APP_DIR" || true
     
     # Start application with PM2 as app user
-    sudo -u "$APP_USER" bash -c "cd $APP_DIR && pm2 start ecosystem.config.js"
+    sudo -u "$APP_USER" bash -c "cd $APP_DIR && pm2 start ecosystem.config.cjs"
     
     # Save PM2 process list for startup
     sudo -u "$APP_USER" pm2 save
