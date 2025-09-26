@@ -1,0 +1,61 @@
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 start --update-env
+[PM2][ERROR] File ecosystem.config.js not found
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 start ecosystem.config.cjs
+[PM2] Applying action restartProcessId on app [together](ids: [ 0 ])
+[PM2] [together](0) ✓
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ fork    │ 8775     │ 0s     │ 60   │ online    │ 0%       │ 21.7mb   │ app… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 status
+┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ together    │ default     │ N/A     │ fork    │ 0        │ 0      │ 75   │ errored   │ 0%       │ 0b       │ app… │ disabled │
+└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ubuntu@ip-172-31-16-222:/opt/appreciatemate$ sudo -u appreciatemate pm2 logs together --lines 20
+[TAILING] Tailing last 20 lines for [together] process (change the value with --lines option)
+/opt/appreciatemate/.pm2/logs/together-out.log last 20 lines:
+0|together |
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together |
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together |
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together |
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+0|together |
+0|together | > rest-express@1.0.0 start
+0|together | > NODE_ENV=production node dist/index.js
+0|together |
+
+/opt/appreciatemate/.pm2/logs/together-error.log last 20 lines:
+0|together |           ^
+0|together |
+0|together | Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+0|together |     at file:///opt/appreciatemate/dist/index.js:2923:11
+0|together |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|together |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|together |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|together |
+0|together | Node.js v20.19.5
+0|together | file:///opt/appreciatemate/dist/index.js:2923
+0|together |     throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+0|together |           ^
+0|together |
+0|together | Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+0|together |     at file:///opt/appreciatemate/dist/index.js:2923:11
+0|together |     at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+0|together |     at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+0|together |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+0|together |
+0|together | Node.js v20.19.5
