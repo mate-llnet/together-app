@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { storage } from '../storage.js';
 
 const DEFAULT_ADMIN = {
@@ -18,11 +19,14 @@ export async function seedDefaultAdmin(): Promise<void> {
       return;
     }
     
+    // Hash password before storing
+    const hashedPassword = await bcrypt.hash(DEFAULT_ADMIN.password, 12);
+    
     // Create the default admin user
     const adminUser = await storage.createUser({
       name: DEFAULT_ADMIN.name,
       email: DEFAULT_ADMIN.email,
-      password: DEFAULT_ADMIN.password
+      password: hashedPassword
     });
     
     console.log(`✅ Successfully created default admin user!`);

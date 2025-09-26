@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import bcrypt from "bcryptjs";
 import { storage } from "./storage";
 import { 
   loginSchema, 
@@ -45,9 +46,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email already registered" });
       }
 
+      // Hash password before storing
+      const hashedPassword = await bcrypt.hash(data.password, 12);
+      
       const user = await storage.createUser({
         email: data.email,
-        password: data.password, // In production, hash this
+        password: hashedPassword,
         name: data.name,
       });
 
@@ -62,7 +66,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = loginSchema.parse(req.body);
       
       const user = await storage.getUserByEmail(data.email);
-      if (!user || user.password !== data.password) {
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Compare hashed password
+      const validPassword = await bcrypt.compare(data.password, user.password);
+      if (!validPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
