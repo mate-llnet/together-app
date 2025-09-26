@@ -14,8 +14,8 @@ export default function Admin() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   
-  // Simple admin check - in production you'd want proper role-based access
-  const isAdmin = user?.email === 'admin@example.com';
+  // Role-based admin access check
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     if (!user) {

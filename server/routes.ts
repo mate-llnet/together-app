@@ -22,12 +22,18 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 
 // Admin authorization middleware
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  console.log(`[requireAdmin] Checking admin access - userId: ${req.session.userId}, isAdmin: ${req.session.isAdmin}`);
+  
   if (!req.session.userId) {
+    console.log(`[requireAdmin] Access denied - no userId in session`);
     return res.status(401).json({ message: "Authentication required" });
   }
   if (!req.session.isAdmin) {
+    console.log(`[requireAdmin] Access denied - user is not admin`);
     return res.status(403).json({ message: "Admin access required" });
   }
+  
+  console.log(`[requireAdmin] Access granted - user is admin`);
   next();
 }
 import { 
@@ -83,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: data.name,
       });
 
-      res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } });
     } catch (error) {
       res.status(400).json({ message: "Invalid registration data" });
     }
@@ -115,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.session.userEmail = user.email;
         req.session.isAdmin = user.role === 'admin'; // Role-based admin check
 
-        res.json({ user: { id: user.id, email: user.email, name: user.name } });
+        res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } });
       });
     } catch (error) {
       res.status(400).json({ message: "Invalid login data" });
@@ -123,11 +129,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/auth/logout", (req, res) => {
+    console.log(`[logout] Destroying session for user: ${req.session.userId}`);
     req.session.destroy((err) => {
       if (err) {
+        console.log(`[logout] Session destruction failed:`, err);
         return res.status(500).json({ message: "Failed to logout" });
       }
-      res.clearCookie('connect.sid'); // Clear the session cookie
+      
+      // Clear the session cookie with matching options
+      res.clearCookie('connect.sid', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      console.log(`[logout] Session destroyed and cookie cleared successfully`);
       res.json({ message: "Logged out successfully" });
     });
   });
@@ -139,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: "Session invalid" });
       }
-      res.json({ user: { id: user.id, email: user.email, name: user.name } });
+      res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role } });
     } catch (error) {
       res.status(500).json({ message: "Failed to get user info" });
     }
