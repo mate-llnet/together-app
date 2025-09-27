@@ -1,0 +1,1083 @@
+2025-09-26T18:44:17: PM2 log: ===============================================================================
+2025-09-26T18:44:17: PM2 log: --- New PM2 Daemon started ----------------------------------------------------
+2025-09-26T18:44:17: PM2 log: Time                 : Fri Sep 26 2025 18:44:17 GMT+0000 (Coordinated Universal Time)
+2025-09-26T18:44:17: PM2 log: PM2 version          : 6.0.13
+2025-09-26T18:44:17: PM2 log: Node.js version      : 20.19.5
+2025-09-26T18:44:17: PM2 log: Current arch         : x64
+2025-09-26T18:44:17: PM2 log: PM2 home             : /opt/appreciatemate/.pm2
+2025-09-26T18:44:17: PM2 log: PM2 PID file         : /opt/appreciatemate/.pm2/pm2.pid
+2025-09-26T18:44:17: PM2 log: RPC socket file      : /opt/appreciatemate/.pm2/rpc.sock
+2025-09-26T18:44:17: PM2 log: BUS socket file      : /opt/appreciatemate/.pm2/pub.sock
+2025-09-26T18:44:17: PM2 log: Application log path : /opt/appreciatemate/.pm2/logs
+2025-09-26T18:44:17: PM2 log: Worker Interval      : 30000
+2025-09-26T18:44:17: PM2 log: Process dump file    : /opt/appreciatemate/.pm2/dump.pm2
+2025-09-26T18:44:17: PM2 log: Concurrent actions   : 2
+2025-09-26T18:44:17: PM2 log: SIGTERM timeout      : 1600
+2025-09-26T18:44:17: PM2 log: Runtime Binary       : /usr/bin/node
+2025-09-26T18:44:17: PM2 log: ===============================================================================
+2025-09-26T18:44:17: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:17: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:18: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:18: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:18: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:19: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:19: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:19: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:20: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:20: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:20: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:21: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:21: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:21: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:21: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:22: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:22: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:22: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:23: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:23: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:23: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:24: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:24: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T18:44:24: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T18:44:25: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T18:44:25: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T18:44:25: PM2 log: Script /usr/bin/npm had too many unstable restarts (16). Stopped. "errored"
+2025-09-26T21:51:38: PM2 log: pm2 has been killed by signal, dumping process list before exit...
+2025-09-26T21:51:38: PM2 log: Deleting process 0
+2025-09-26T21:51:38: PM2 log: Stopping app:appreciatemate id:0
+2025-09-26T21:51:38: PM2 error: app=appreciatemate id=0 does not have a pid
+2025-09-26T21:51:38: PM2 log: Exited peacefully
+2025-09-26T21:51:57: PM2 log: ===============================================================================
+2025-09-26T21:51:57: PM2 log: --- New PM2 Daemon started ----------------------------------------------------
+2025-09-26T21:51:57: PM2 log: Time                 : Fri Sep 26 2025 21:51:57 GMT+0000 (Coordinated Universal Time)
+2025-09-26T21:51:57: PM2 log: PM2 version          : 6.0.13
+2025-09-26T21:51:57: PM2 log: Node.js version      : 20.19.5
+2025-09-26T21:51:57: PM2 log: Current arch         : x64
+2025-09-26T21:51:57: PM2 log: PM2 home             : /opt/appreciatemate/.pm2
+2025-09-26T21:51:57: PM2 log: PM2 PID file         : /opt/appreciatemate/.pm2/pm2.pid
+2025-09-26T21:51:57: PM2 log: RPC socket file      : /opt/appreciatemate/.pm2/rpc.sock
+2025-09-26T21:51:57: PM2 log: BUS socket file      : /opt/appreciatemate/.pm2/pub.sock
+2025-09-26T21:51:57: PM2 log: Application log path : /opt/appreciatemate/.pm2/logs
+2025-09-26T21:51:57: PM2 log: Worker Interval      : 30000
+2025-09-26T21:51:57: PM2 log: Process dump file    : /opt/appreciatemate/.pm2/dump.pm2
+2025-09-26T21:51:57: PM2 log: Concurrent actions   : 2
+2025-09-26T21:51:57: PM2 log: SIGTERM timeout      : 1600
+2025-09-26T21:51:57: PM2 log: Runtime Binary       : /usr/bin/node
+2025-09-26T21:51:57: PM2 log: ===============================================================================
+2025-09-26T21:51:58: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:51:58: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:51:59: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:51:59: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:51:59: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:51:59: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:00: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:00: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:00: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:00: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:01: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:01: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:01: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:03: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:03: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:03: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:04: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:04: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:04: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:05: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:05: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:05: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:06: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:06: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:06: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:07: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:07: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:07: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:08: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:08: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:08: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T21:52:08: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T21:52:08: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T21:52:08: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T21:52:08: PM2 log: Script /usr/bin/npm had too many unstable restarts (16). Stopped. "errored"
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:52: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:52: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:52: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:53: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:53: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:53: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:54: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:54: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:54: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:55: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:55: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:55: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:56: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:56: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:56: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:57: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:57: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:57: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:57: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:58: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:58: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-26T22:16:58: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:2923
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:2923:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-26T22:16:59: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-26T22:16:59: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-26T22:16:59: PM2 log: Script /usr/bin/npm had too many unstable restarts (16). Stopped. "errored"
+2025-09-27T10:59:22: PM2 log: Stopping app:appreciatemate id:0
+2025-09-27T10:59:22: PM2 error: app=appreciatemate id=0 does not have a pid
+2025-09-27T10:59:22: PM2 log: PM2 successfully stopped
+2025-09-27T11:00:01: PM2 log: ===============================================================================
+2025-09-27T11:00:01: PM2 log: --- New PM2 Daemon started ----------------------------------------------------
+2025-09-27T11:00:01: PM2 log: Time                 : Sat Sep 27 2025 11:00:01 GMT+0000 (Coordinated Universal Time)
+2025-09-27T11:00:01: PM2 log: PM2 version          : 6.0.13
+2025-09-27T11:00:01: PM2 log: Node.js version      : 20.19.5
+2025-09-27T11:00:01: PM2 log: Current arch         : x64
+2025-09-27T11:00:01: PM2 log: PM2 home             : /opt/appreciatemate/.pm2
+2025-09-27T11:00:01: PM2 log: PM2 PID file         : /opt/appreciatemate/.pm2/pm2.pid
+2025-09-27T11:00:01: PM2 log: RPC socket file      : /opt/appreciatemate/.pm2/rpc.sock
+2025-09-27T11:00:01: PM2 log: BUS socket file      : /opt/appreciatemate/.pm2/pub.sock
+2025-09-27T11:00:01: PM2 log: Application log path : /opt/appreciatemate/.pm2/logs
+2025-09-27T11:00:01: PM2 log: Worker Interval      : 30000
+2025-09-27T11:00:01: PM2 log: Process dump file    : /opt/appreciatemate/.pm2/dump.pm2
+2025-09-27T11:00:01: PM2 log: Concurrent actions   : 2
+2025-09-27T11:00:01: PM2 log: SIGTERM timeout      : 1600
+2025-09-27T11:00:01: PM2 log: Runtime Binary       : /usr/bin/node
+2025-09-27T11:00:01: PM2 log: ===============================================================================
+2025-09-27T11:00:01: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:01: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:02: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:02: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:02: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:02: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:03: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:03: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:03: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:04: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:04: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:04: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:05: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:05: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:05: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:07: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:07: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:07: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:07: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:08: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:08: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:08: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:08: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:09: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:09: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:09: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:10: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:10: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:10: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:11: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:11: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] starting in -cluster mode-
+2025-09-27T11:00:11: PM2 log: App [appreciatemate:0] online
+file:///opt/appreciatemate/dist/index.js:3283
+    throw new Error("SESSION_SECRET environment variable is required and must be at least 32 characters in production");
+          ^
+
+Error: SESSION_SECRET environment variable is required and must be at least 32 characters in production
+    at file:///opt/appreciatemate/dist/index.js:3283:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.19.5
+2025-09-27T11:00:12: PM2 log: App name:appreciatemate id:0 disconnected
+2025-09-27T11:00:12: PM2 log: App [appreciatemate:0] exited with code [1] via signal [SIGINT]
+2025-09-27T11:00:12: PM2 log: Script /usr/bin/npm had too many unstable restarts (16). Stopped. "errored"

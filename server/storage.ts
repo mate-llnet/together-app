@@ -1,7 +1,7 @@
-import { 
-  type User, 
-  type InsertUser, 
-  type Couple, 
+import {
+  type User,
+  type InsertUser,
+  type Couple,
   type InsertCouple,
   type Activity,
   type InsertActivity,
@@ -24,6 +24,9 @@ import {
   type InsertSitePage,
   type ContactSubmission,
   type InsertContactSubmission,
+  type RelationshipGroup,
+  type RelationshipMembership,
+  type RelationshipInvitation,
   users,
   couples,
   activityCategories,
@@ -36,7 +39,10 @@ import {
   milestones,
   siteSettings,
   sitePages,
-  contactSubmissions
+  contactSubmissions,
+  relationshipGroups,
+  relationshipMemberships,
+  relationshipInvitations
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -44,7 +50,7 @@ import { eq, and, desc, gte, lt } from "drizzle-orm";
 import postgres from "postgres";
 
 const sql = postgres(process.env.DATABASE_URL!);
-const db = drizzle(sql);
+export const db = drizzle(sql);
 
 export interface IStorage {
   // Users

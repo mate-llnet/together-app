@@ -13,6 +13,47 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Flexible relationship system - supports any group size and type
+export const relationshipGroups = pgTable("relationship_groups", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(), // "Smith Family", "Apartment 4B", "Our Relationship"
+  type: text("type").notNull(), // 'romantic', 'family', 'roommates', 'friends', 'work_team', 'other'
+  description: text("description"),
+  avatarUrl: text("avatar_url"),
+  settings: text("settings").default("{}"), // JSON string for group settings
+  createdBy: varchar("created_by").notNull().references(() => users.id),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const relationshipMemberships = pgTable("relationship_memberships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  groupId: varchar("group_id").notNull().references(() => relationshipGroups.id),
+  role: text("role").notNull(), // 'partner', 'parent', 'child', 'roommate', 'friend', 'colleague', 'admin'
+  status: text("status").notNull().default("active"), // 'pending', 'active', 'inactive', 'left'
+  permissions: text("permissions").default("{}"), // JSON string for member permissions
+  joinedAt: timestamp("joined_at").notNull().defaultNow(),
+  leftAt: timestamp("left_at"),
+});
+
+export const relationshipInvitations = pgTable("relationship_invitations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  groupId: varchar("group_id").notNull().references(() => relationshipGroups.id),
+  inviterId: varchar("inviter_id").notNull().references(() => users.id),
+  email: text("email").notNull(),
+  name: text("name"), // Optional: name of person being invited
+  role: text("role").notNull(),
+  message: text("message"),
+  status: text("status").notNull().default("pending"), // 'pending', 'accepted', 'declined', 'expired', 'cancelled'
+  token: varchar("token").unique().default(sql`gen_random_uuid()`),
+  expiresAt: timestamp("expires_at").notNull().default(sql`NOW() + INTERVAL '7 days'`),
+  respondedAt: timestamp("responded_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Keep couples table for backward compatibility (mark as deprecated)
 export const couples = pgTable("couples", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   user1Id: varchar("user1_id").notNull().references(() => users.id),
@@ -152,6 +193,25 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
 });
 
+// New relationship system schemas
+export const insertRelationshipGroupSchema = createInsertSchema(relationshipGroups).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRelationshipMembershipSchema = createInsertSchema(relationshipMemberships).omit({
+  id: true,
+  joinedAt: true,
+});
+
+export const insertRelationshipInvitationSchema = createInsertSchema(relationshipInvitations).omit({
+  id: true,
+  token: true,
+  createdAt: true,
+});
+
+// Legacy couples schema (deprecated)
 export const insertCoupleSchema = createInsertSchema(couples).omit({
   id: true,
   createdAt: true,
@@ -215,6 +275,16 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+// New relationship system types
+export type RelationshipGroup = typeof relationshipGroups.$inferSelect;
+export type InsertRelationshipGroup = z.infer<typeof insertRelationshipGroupSchema>;
+export type RelationshipMembership = typeof relationshipMemberships.$inferSelect;
+export type InsertRelationshipMembership = z.infer<typeof insertRelationshipMembershipSchema>;
+export type RelationshipInvitation = typeof relationshipInvitations.$inferSelect;
+export type InsertRelationshipInvitation = z.infer<typeof insertRelationshipInvitationSchema>;
+
+// Legacy types (deprecated)
 export type Couple = typeof couples.$inferSelect;
 export type InsertCouple = z.infer<typeof insertCoupleSchema>;
 export type ActivityCategory = typeof activityCategories.$inferSelect;
@@ -249,6 +319,24 @@ export interface ActivityWithUser extends Activity {
   category?: ActivityCategory;
 }
 
+// Enhanced user types with relationship data
+export interface UserWithGroups extends User {
+  relationshipGroups?: RelationshipGroupWithMembers[];
+  primaryGroup?: RelationshipGroupWithMembers; // Most active/recent group
+}
+
+export interface RelationshipGroupWithMembers extends RelationshipGroup {
+  members: (RelationshipMembership & { user: User })[];
+  memberCount: number;
+  userMembership?: RelationshipMembership; // Current user's membership in this group
+}
+
+export interface RelationshipGroupWithInvitations extends RelationshipGroup {
+  members: (RelationshipMembership & { user: User })[];
+  invitations: (RelationshipInvitation & { inviter: User })[];
+}
+
+// Legacy type (deprecated but kept for compatibility)
 export interface UserWithCouple extends User {
   couple?: {
     id: string;
@@ -272,10 +360,59 @@ export const registerSchema = loginSchema.extend({
   path: ["confirmPassword"],
 });
 
+// Onboarding and relationship management schemas
+export const createRelationshipGroupSchema = z.object({
+  name: z.string().min(1, "Group name is required").max(100),
+  type: z.enum(['romantic', 'family', 'roommates', 'friends', 'work_team', 'other']),
+  description: z.string().max(500).optional(),
+  avatarUrl: z.string().url().optional(),
+});
+
+export const inviteToGroupSchema = z.object({
+  groupId: z.string().uuid(),
+  email: z.string().email(),
+  name: z.string().min(1).max(100).optional(),
+  role: z.string().min(1).max(50),
+  message: z.string().max(500).optional(),
+});
+
+export const onboardingSchema = z.object({
+  setupType: z.enum(['individual', 'couple', 'family', 'group']),
+  relationshipGroup: createRelationshipGroupSchema.optional(),
+  invitations: z.array(z.object({
+    email: z.string().email(),
+    name: z.string().min(1).max(100).optional(),
+    role: z.string().min(1).max(50),
+  })).optional(),
+});
+
+export const respondToInvitationSchema = z.object({
+  token: z.string().uuid(),
+  response: z.enum(['accept', 'decline']),
+  userData: z.object({
+    name: z.string().min(2),
+    password: z.string().min(6),
+    confirmPassword: z.string().min(6),
+  }).optional(), // Only required for new users accepting invitations
+}).refine((data) => {
+  if (data.userData) {
+    return data.userData.password === data.userData.confirmPassword;
+  }
+  return true;
+}, {
+  message: "Passwords don't match",
+  path: ["userData", "confirmPassword"],
+});
+
+// Legacy schema (deprecated)
 export const invitePartnerSchema = z.object({
   email: z.string().email(),
 });
 
 export type LoginData = z.infer<typeof loginSchema>;
 export type RegisterData = z.infer<typeof registerSchema>;
-export type InvitePartnerData = z.infer<typeof invitePartnerSchema>;
+export type CreateRelationshipGroupData = z.infer<typeof createRelationshipGroupSchema>;
+export type InviteToGroupData = z.infer<typeof inviteToGroupSchema>;
+export type OnboardingData = z.infer<typeof onboardingSchema>;
+export type RespondToInvitationData = z.infer<typeof respondToInvitationSchema>;
+export type InvitePartnerData = z.infer<typeof invitePartnerSchema>; // Legacy

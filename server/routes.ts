@@ -50,6 +50,7 @@ import { generateActivitySuggestions, categorizeActivity, generateAppreciationMe
 import { GamificationService } from "./services/gamification";
 import { seedAchievements } from "./services/seed-achievements";
 import { seedDefaultAdmin } from "./services/seed-admin";
+import { registerRelationshipRoutes } from "./routes/relationships";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
@@ -68,6 +69,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.error("Failed to seed startup data:", error);
   }
+
+  // Register relationship routes
+  registerRelationshipRoutes(app);
 
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
