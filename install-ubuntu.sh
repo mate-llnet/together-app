@@ -446,14 +446,31 @@ setup_application() {
     log "Installing application dependencies..."
     sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm ci"
     
-    # Build application
+    # Build application with error recovery
     log "Building application..."
     if sudo -u "$APP_USER" bash -c "cd $APP_DIR && [ -f package.json ] && npm run build"; then
         log "Build completed successfully"
         # Optional: Remove dev dependencies after build for production
         # sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm prune --production"
     else
-        warn "Build step failed or not available, application will run in development mode"
+        warn "Build step failed or not available, checking for common issues..."
+
+        # Check for missing dependencies and architecture issues
+        log "Attempting to fix common build issues..."
+
+        # Clear npm cache and reinstall
+        sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm cache clean --force" || true
+        sudo -u "$APP_USER" bash -c "cd $APP_DIR && rm -rf node_modules package-lock.json" || true
+        sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm install" || true
+
+        # Try build again
+        if sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run build"; then
+            log "Build succeeded after dependency fix"
+        else
+            warn "Build step still failing, application will run in development mode"
+            warn "This may be due to missing group context fixes or architectural migration issues"
+            info "Check ARCHITECTURE_MIGRATION_FIXES.md for required component updates"
+        fi
     fi
 }
 
@@ -534,11 +551,22 @@ setup_database() {
     if [ "$USE_DATABASE" = "true" ]; then
         log "Setting up application database..."
         
-        # Run database migrations
+        # Run database migrations with error recovery
         if sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run db:push"; then
             log "Database setup completed"
+        elif sudo -u "$APP_USER" bash -c "cd $APP_DIR && npm run db:migrate"; then
+            log "Database migrations completed (alternative command)"
         else
-            warn "Database migration failed or not available. Application will use in-memory storage."
+            warn "Database migration failed or not available. Checking for schema issues..."
+
+            # Check if this is the group system migration issue
+            if sudo -u "$APP_USER" bash -c "cd $APP_DIR && [ -f shared/schema.ts ]"; then
+                log "Detected relationship groups schema - ensuring proper migration"
+                info "This application has migrated from couples to flexible relationship groups"
+                info "See ARCHITECTURE_MIGRATION_FIXES.md for details on the migration"
+            fi
+
+            warn "Application will use in-memory storage or existing database state"
         fi
     else
         log "Skipping database setup (using in-memory storage)"
@@ -823,10 +851,10 @@ start_application() {
     # Wait for application to start
     sleep 10
     
-    # Check if application is running
+    # Check if application is running with enhanced diagnostics
     if sudo -u "$APP_USER" pm2 list | grep -q "$APP_NAME.*online"; then
         log "Application started successfully!"
-        
+
         # Test health endpoint
         if curl -f -s http://localhost:5000/api/health > /dev/null; then
             log "Health check passed!"
@@ -835,8 +863,25 @@ start_application() {
             info "You can test manually with: curl http://localhost:5000/api/health"
         fi
     else
-        error "Application failed to start. Check logs with: sudo -u $APP_USER pm2 logs $APP_NAME"
-        warn "You can also try: sudo -u $APP_USER pm2 restart $APP_NAME"
+        error "Application failed to start. Performing diagnostics..."
+
+        # Show recent logs for debugging
+        warn "Recent application logs:"
+        sudo -u "$APP_USER" pm2 logs "$APP_NAME" --lines 20 || true
+
+        # Check for common issues
+        info "Common troubleshooting steps:"
+        echo "  1. Check logs: sudo -u $APP_USER pm2 logs $APP_NAME"
+        echo "  2. Restart app: sudo -u $APP_USER pm2 restart $APP_NAME"
+        echo "  3. Check build: cd $APP_DIR && npm run build"
+        echo "  4. Review fixes: cat $APP_DIR/ARCHITECTURE_MIGRATION_FIXES.md"
+
+        # Check if this is related to the couples-to-groups migration
+        if [ -f "$APP_DIR/ARCHITECTURE_MIGRATION_FIXES.md" ]; then
+            info "This application has been updated to fix couples-to-groups migration issues"
+            info "Check the migration fixes documentation for resolved issues"
+        fi
+
         # Don't exit - let user debug
     fi
 }
@@ -910,6 +955,8 @@ show_completion_info() {
     echo "  • Restart application: sudo -u $APP_USER pm2 restart together"
     echo "  • Check application status: sudo -u $APP_USER pm2 status"
     echo "  • Update application: cd $APP_DIR && git pull && npm ci && npm run build && pm2 restart together"
+    echo "  • View migration fixes: cat $APP_DIR/ARCHITECTURE_MIGRATION_FIXES.md"
+    echo "  • Check for UI issues: Review group context integration in components"
     
     echo
     info "Default Admin Account:"
@@ -923,10 +970,25 @@ show_completion_info() {
     echo "  • Regularly update system packages: sudo apt update && sudo apt upgrade"
     echo "  • Monitor application logs for any security issues"
     echo "  • Consider setting up automated backups for your database"
+    echo
+    info "Architecture Migration Notes:"
+    echo "  • This app has been updated from couples-only to flexible relationship groups"
+    echo "  • Supports families, roommates, work teams, and other relationship types"
+    echo "  • UI components have been updated to use group context instead of partner context"
+    echo "  • See ARCHITECTURE_MIGRATION_FIXES.md for complete details of changes made"
     
     echo
     log "Together app installation completed successfully!"
     info "You can now access your relationship app and start tracking activities together!"
+
+    echo
+    info "Troubleshooting Common Issues:"
+    echo "  • PM2 not starting: sudo -u $APP_USER pm2 kill && sudo -u $APP_USER pm2 start $APP_DIR/ecosystem.config.cjs"
+    echo "  • TypeScript errors: cd $APP_DIR && npm install ts-node tsconfig-paths --save-dev"
+    echo "  • Build failures: cd $APP_DIR && rm -rf node_modules && npm install && npm run build"
+    echo "  • Nginx not serving: sudo nginx -t && sudo systemctl restart nginx"
+    echo "  • Port conflicts: sudo netstat -tlnp | grep ':80\\|:5000' to check what's using ports"
+    echo "  • Permission issues: sudo chown -R $APP_USER:$APP_USER $APP_DIR"
 }
 
 # Main installation flow

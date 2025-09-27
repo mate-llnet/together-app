@@ -1,11 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useGroupContext } from "@/hooks/use-group-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, TrendingUp, Calendar, Award } from "lucide-react";
+import { BarChart3, TrendingUp, Calendar, Award, Users, AlertTriangle } from "lucide-react";
 import { format, subDays, startOfWeek, endOfWeek } from "date-fns";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import GroupSelector from "@/components/dashboard/group-selector";
+
+interface GroupMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+}
 
 export default function Analytics() {
   const { user } = useAuth();
+  const { currentGroup, setCurrentGroup } = useGroupContext();
 
   const { data: stats } = useQuery({
     queryKey: ["/api/analytics/stats"],
@@ -21,23 +33,17 @@ export default function Analytics() {
     }
   });
 
-  const { data: partner } = useQuery({
-    queryKey: ["/api/partner"],
-    meta: {
-      headers: { "x-user-id": user?.id }
-    }
-  });
-
-  const { data: partnerActivitiesData } = useQuery({
-    queryKey: ["/api/activities/partner", { limit: 30 }],
+  const { data: groupDetails } = useQuery({
+    queryKey: [`/api/relationships/${currentGroup?.id}`],
     meta: {
       headers: { "x-user-id": user?.id }
     },
-    enabled: !!partner?.partner
+    enabled: !!currentGroup?.id
   });
 
   const activities = activitiesData?.activities || [];
-  const partnerActivities = partnerActivitiesData?.activities || [];
+  const members: GroupMember[] = groupDetails?.members || [];
+  const otherMembers = members.filter(m => m.id !== user?.id && m.status === 'active');
 
   // Calculate weekly data
   const weeklyData = [];
@@ -51,17 +57,15 @@ export default function Analytics() {
       return activityDate >= dayStart && activityDate < dayEnd;
     });
 
-    const partnerDayActivities = partnerActivities.filter((activity: any) => {
-      const activityDate = new Date(activity.completedAt);
-      return activityDate >= dayStart && activityDate < dayEnd;
-    });
+    // For now, we only show user activities since activities aren't group-aware yet
+    const groupDayActivities: any[] = [];
 
     weeklyData.push({
       date: format(date, 'EEE'),
       user: userDayActivities.length,
-      partner: partnerDayActivities.length,
+      group: groupDayActivities.length,
       userPoints: userDayActivities.reduce((sum: number, a: any) => sum + a.points, 0),
-      partnerPoints: partnerDayActivities.reduce((sum: number, a: any) => sum + a.points, 0),
+      groupPoints: groupDayActivities.reduce((sum: number, a: any) => sum + a.points, 0),
     });
   }
 
@@ -105,10 +109,29 @@ export default function Analytics() {
           Analytics Dashboard 📊
         </h2>
         <p className="text-muted-foreground">
-          Insights into your relationship contributions and patterns
+          {currentGroup
+            ? `Insights into your ${currentGroup.name} contributions and patterns`
+            : "Insights into your contributions and activity patterns"}
         </p>
       </div>
 
+      {/* Group Selector */}
+      <div className="mb-6">
+        <GroupSelector
+          currentGroupId={currentGroup?.id}
+          onGroupChange={setCurrentGroup}
+        />
+      </div>
+
+      {!currentGroup ? (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Please select a group to view analytics and insights.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
@@ -185,26 +208,16 @@ export default function Analytics() {
                     <span className="text-muted-foreground font-medium">{day.date}</span>
                     <div className="flex items-center space-x-4">
                       <span className="text-primary">You: {day.user}</span>
-                      {partner?.partner && (
-                        <span className="text-secondary">{partner.partner.name}: {day.partner}</span>
-                      )}
+                      <span className="text-muted-foreground">Group: {otherMembers.length} members</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="flex-1 bg-muted rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(100, (day.user / Math.max(day.user + day.partner, 1)) * 100)}%` }}
+                        style={{ width: `${Math.min(100, day.user > 0 ? 100 : 0)}%` }}
                       ></div>
                     </div>
-                    {partner?.partner && (
-                      <div className="flex-1 bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-secondary h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${Math.min(100, (day.partner / Math.max(day.user + day.partner, 1)) * 100)}%` }}
-                        ></div>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
@@ -252,10 +265,13 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        {/* Balance & Trends */}
+        {/* Group Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>Relationship Balance</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>Group Activity</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -263,51 +279,45 @@ export default function Analytics() {
                 <div className="text-3xl font-bold text-foreground mb-2" data-testid="text-balance-score">
                   {stats?.stats.balance || 50}%
                 </div>
-                <p className="text-sm text-muted-foreground">Your contribution balance</p>
+                <p className="text-sm text-muted-foreground">Your contribution level</p>
               </div>
 
-              {partner?.partner && (
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">Your activities this week</span>
-                      <span className="font-medium text-foreground" data-testid="text-user-week-count">
-                        {currentWeekActivities.length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.min(100, (currentWeekActivities.length / Math.max(currentWeekActivities.length + (partnerActivities.filter((a: any) => {
-                          const date = new Date(a.completedAt);
-                          return date >= startOfWeek(new Date()) && date <= endOfWeek(new Date());
-                        }).length), 1)) * 100)}%` }}
-                      ></div>
-                    </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Your activities this week</span>
+                    <span className="font-medium text-foreground" data-testid="text-user-week-count">
+                      {currentWeekActivities.length}
+                    </span>
                   </div>
-
-                  <div>
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">{partner.partner.name}'s activities this week</span>
-                      <span className="font-medium text-foreground" data-testid="text-partner-week-count">
-                        {partnerActivities.filter((a: any) => {
-                          const date = new Date(a.completedAt);
-                          return date >= startOfWeek(new Date()) && date <= endOfWeek(new Date());
-                        }).length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-secondary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${100 - Math.min(100, (currentWeekActivities.length / Math.max(currentWeekActivities.length + (partnerActivities.filter((a: any) => {
-                          const date = new Date(a.completedAt);
-                          return date >= startOfWeek(new Date()) && date <= endOfWeek(new Date());
-                        }).length), 1)) * 100)}%` }}
-                      ></div>
-                    </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(100, currentWeekActivities.length > 0 ? 100 : 0)}%` }}
+                    ></div>
                   </div>
                 </div>
-              )}
+
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Group members</span>
+                    <span className="font-medium text-foreground">
+                      {members.length} total
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {otherMembers.map((member) => (
+                      <div key={member.id} className="flex items-center space-x-3">
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                          {member.name.charAt(0)}
+                        </div>
+                        <span className="text-sm text-muted-foreground">{member.name}</span>
+                        <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -333,8 +343,8 @@ export default function Analytics() {
                   💝 Appreciation Score
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Your current appreciation score is {stats?.stats.appreciationScore || 0}%. 
-                  {partner?.partner ? ` ${partner.partner.name} really values your contributions!` : ' Keep logging activities to improve your score!'}
+                  Your current appreciation score is {stats?.stats.appreciationScore || 0}%.
+                  {currentGroup ? ` Your ${currentGroup.name} members really value your contributions!` : ' Keep logging activities to improve your score!'}
                 </p>
               </div>
 
@@ -370,6 +380,8 @@ export default function Analytics() {
           </CardContent>
         </Card>
       </div>
+        </>
+      )}
     </div>
   );
 }

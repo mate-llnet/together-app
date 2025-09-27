@@ -10,14 +10,17 @@ import Dashboard from "@/pages/dashboard";
 import AddActivity from "@/pages/add-activity";
 import Appreciation from "@/pages/appreciation";
 import Analytics from "@/pages/analytics";
-import CoupleInsights from "@/pages/couple-insights";
+import Insights from "@/pages/insights";
 import Settings from "@/pages/settings";
 import Landing from "@/pages/landing";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import Admin from "@/pages/admin";
+import Onboarding from "@/pages/onboarding";
+import Groups from "@/pages/groups";
 import AppLayout from "@/components/layout/app-layout";
 import PublicLayout from "@/components/layout/public-layout";
+import { GroupProvider } from "@/hooks/use-group-context";
 
 // Public routes that don't require authentication
 function PublicRouter() {
@@ -36,18 +39,21 @@ function PublicRouter() {
 // Authenticated app routes
 function AppRouter() {
   return (
-    <AppLayout>
-      <Switch>
-        <Route path="/app" component={Dashboard} />
-        <Route path="/app/add-activity" component={AddActivity} />
-        <Route path="/app/appreciation" component={Appreciation} />
-        <Route path="/app/analytics" component={Analytics} />
-        <Route path="/app/couple-insights" component={CoupleInsights} />
-        <Route path="/app/settings" component={Settings} />
-        <Route path="/admin" component={Admin} />
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+    <GroupProvider>
+      <AppLayout>
+        <Switch>
+          <Route path="/app" component={Dashboard} />
+          <Route path="/app/add-activity" component={AddActivity} />
+          <Route path="/app/appreciation" component={Appreciation} />
+          <Route path="/app/analytics" component={Analytics} />
+          <Route path="/app/insights" component={Insights} />
+          <Route path="/app/groups" component={Groups} />
+          <Route path="/app/settings" component={Settings} />
+          <Route path="/admin" component={Admin} />
+          <Route component={NotFound} />
+        </Switch>
+      </AppLayout>
+    </GroupProvider>
   );
 }
 
@@ -72,6 +78,14 @@ function MainRouter() {
   // Handle auth route separately
   if (location === '/auth') {
     return <Auth onLogin={login} />;
+  }
+
+  // Handle onboarding route separately (for authenticated users only)
+  if (location === '/onboarding') {
+    if (!user) {
+      return <Auth onLogin={login} />;
+    }
+    return <Onboarding />;
   }
 
   // If user is trying to access app routes or admin but not authenticated

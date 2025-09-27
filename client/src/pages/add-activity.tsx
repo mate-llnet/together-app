@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useGroupContext } from "@/hooks/use-group-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,10 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, Users, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import GroupSelector from "@/components/dashboard/group-selector";
 
 export default function AddActivity() {
   const { user } = useAuth();
+  const { currentGroup, setCurrentGroup } = useGroupContext();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
@@ -43,7 +47,7 @@ export default function AddActivity() {
         title: "Success",
         description: "Activity added successfully!",
       });
-      setLocation("/");
+      setLocation("/app");
     },
     onError: () => {
       toast({
@@ -99,11 +103,29 @@ export default function AddActivity() {
           Add New Activity
         </h2>
         <p className="text-muted-foreground">
-          Log something you've accomplished today
+          {currentGroup
+            ? `Log an activity for ${currentGroup.name}`
+            : "Log something you've accomplished today"}
         </p>
       </div>
 
-      <Card>
+      {/* Group Selector */}
+      <div className="mb-6">
+        <GroupSelector
+          currentGroupId={currentGroup?.id}
+          onGroupChange={setCurrentGroup}
+        />
+      </div>
+
+      {!currentGroup ? (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Please select a group to add activities for.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Plus className="w-5 h-5" />
@@ -196,7 +218,7 @@ export default function AddActivity() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/app")}
                 data-testid="button-cancel"
               >
                 Cancel
@@ -216,6 +238,7 @@ export default function AddActivity() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }

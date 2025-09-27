@@ -7,10 +7,12 @@ export default function Sidebar() {
   const [location] = useLocation();
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: "fas fa-home" },
-    { name: "Add Activity", href: "/add-activity", icon: "fas fa-plus-circle" },
-    { name: "Appreciation", href: "/appreciation", icon: "fas fa-heart" },
-    { name: "Analytics", href: "/analytics", icon: "fas fa-chart-line" },
+    { name: "Dashboard", href: "/app", icon: "fas fa-home" },
+    { name: "Add Activity", href: "/app/add-activity", icon: "fas fa-plus-circle" },
+    { name: "Appreciation", href: "/app/appreciation", icon: "fas fa-heart" },
+    { name: "Groups", href: "/app/groups", icon: "fas fa-users" },
+    { name: "Analytics", href: "/app/analytics", icon: "fas fa-chart-line" },
+    { name: "Insights", href: "/app/insights", icon: "fas fa-lightbulb" },
   ];
 
   const isActive = (href: string) => location === href;

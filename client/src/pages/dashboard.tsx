@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { useGroupContext } from "@/hooks/use-group-context";
 import StatCard from "@/components/dashboard/stat-card";
 import TodayActivities from "@/components/dashboard/today-activities";
 import AiSuggestions from "@/components/dashboard/ai-suggestions";
-import PartnerAppreciation from "@/components/dashboard/partner-appreciation";
+import GroupMembers from "@/components/dashboard/group-members";
+import GroupSelector from "@/components/dashboard/group-selector";
+import InviteMembersDialog from "@/components/groups/invite-members-dialog";
 import WeeklyProgress from "@/components/dashboard/weekly-progress";
 import { ActivityPredictions } from "@/components/dashboard/activity-predictions";
 import { SmartReminders } from "@/components/dashboard/smart-reminders";
@@ -14,6 +18,8 @@ import { Link } from "wouter";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { currentGroup, groups, isLoading: groupsLoading, setCurrentGroup } = useGroupContext();
 
   const { data: stats } = useQuery({
     queryKey: ["/api/analytics/stats"],
@@ -22,12 +28,19 @@ export default function Dashboard() {
     }
   });
 
-  const { data: partner } = useQuery({
-    queryKey: ["/api/partner"],
+  const { data: groupDetails } = useQuery({
+    queryKey: [`/api/relationships/${currentGroup?.id}`],
     meta: {
       headers: { "x-user-id": user?.id }
-    }
+    },
+    enabled: !!currentGroup?.id
   });
+
+  // Redirect to onboarding if user has no relationship groups
+  if (!groupsLoading && groups.length === 0) {
+    setLocation("/onboarding");
+    return null;
+  }
 
   const currentTime = new Date();
   const timeOfDay = currentTime.getHours() < 12 ? "morning" : 
@@ -46,14 +59,22 @@ export default function Dashboard() {
     <div className="p-4 lg:p-8 max-w-7xl mx-auto">
       {/* Header Section */}
       <div className="mb-8">
+        {/* Group Selector */}
+        <div className="mb-6">
+          <GroupSelector
+            currentGroupId={currentGroup?.id}
+            onGroupChange={setCurrentGroup}
+          />
+        </div>
+
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
           <div>
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2" data-testid="text-greeting">
               Good {timeOfDay}, {user?.name}! 👋
             </h2>
             <p className="text-muted-foreground">
-              {partner.partner ? 
-                `Let's see what you and ${partner.name} accomplished today` :
+              {currentGroup ?
+                `Let's see what ${currentGroup.name} accomplished today` :
                 "Let's see what you accomplished today"
               }
             </p>
@@ -65,12 +86,21 @@ export default function Dashboard() {
                 {formatDate(currentTime)}
               </p>
             </div>
-            <Link href="/add-activity">
-              <Button className="flex items-center space-x-2" data-testid="button-quick-add">
-                <Plus className="w-4 h-4" />
-                <span>Quick Add</span>
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2">
+              {currentGroup && (
+                <InviteMembersDialog
+                  groupId={currentGroup.id}
+                  groupName={currentGroup.name}
+                  groupType={currentGroup.type}
+                />
+              )}
+              <Link href="/app/add-activity">
+                <Button className="flex items-center space-x-2" data-testid="button-quick-add">
+                  <Plus className="w-4 h-4" />
+                  <span>Quick Add</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +153,7 @@ export default function Dashboard() {
         {/* Right Sidebar */}
         <div className="space-y-6">
           <SmartReminders />
-          <PartnerAppreciation />
+          <GroupMembers />
           <WeeklyProgress />
         </div>
       </div>
